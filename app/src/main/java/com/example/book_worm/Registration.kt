@@ -15,14 +15,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import com.example.book_worm.ui.theme.BWTextField
+import com.example.book_worm.ui.theme.Icons
 import com.example.book_worm.ui.theme.MajorButton
 import com.example.book_worm.ui.theme.MinorButton
 
 @Composable
-fun Login(onNavigateToRegister: () -> Unit) {
+fun Registration(onNavigateToLogin: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    val error = " is missing. Please enter a"
+    var passwordConfirmation by remember { mutableStateOf("") }
+    val error = " is missing. Please enter "
     var emailError by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf("") }
 
@@ -36,7 +38,7 @@ fun Login(onNavigateToRegister: () -> Unit) {
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
             Image(
-                painter = painterResource(id = R.drawable.login_background),
+                painter = painterResource(id = R.drawable.registration_background),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.FillBounds
@@ -48,56 +50,54 @@ fun Login(onNavigateToRegister: () -> Unit) {
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    MinorButton("Back to login", onNavigateToLogin, Icons.Back)
+                }
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 100.dp)
+                        .padding(horizontal = 80.dp)
                 ) {
-                    Spacer(modifier = Modifier.height(275.dp))
+                    Spacer(modifier = Modifier.height(200.dp))
 
-                    BWTextField(email, { email = it; resetErrors() }, "Email")
-                    BWTextField(password, { password = it; resetErrors() }, "Password")
+                    BWTextField(email, { email = it; resetErrors()}, "Email")
+                    BWTextField(password, { password = it; resetErrors()  }, "Password")
+                    BWTextField(passwordConfirmation, { passwordConfirmation = it; resetErrors() }, "Confirm Password")
 
-                    Spacer(modifier = Modifier.height(25.dp))
+                    Spacer(modifier = Modifier.height(100.dp))
 
                     Row(
                         horizontalArrangement = Arrangement.Center,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        MajorButton("Login") {
+                        MajorButton("Create\nAccount") {
                             if (email.isEmpty()) {
-                                emailError = "Email" + error + "n email address."
+                                emailError = "Email" + error + "an email address."
                             }
                             if (password.isEmpty()) {
-                                passwordError = "Password " + error + " password."
+                                passwordError = "Password" + error + "a password."
+                            } else if (passwordConfirmation.isEmpty()) {
+                                passwordError = "Password confirmation" + error + "your password again."
+                            } else if (password != passwordConfirmation) {
+                                passwordError = "Passwords are different. Please confirm password by entering it again."
                             }
 
                             if (emailError.isEmpty() && passwordError.isEmpty()) {}
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(100.dp))
+
+                    Text(
+                        emailError + "\n\n" + passwordError,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center
+                    )
                 }
-
-                Spacer(modifier = Modifier.height(33.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    MinorButton("Forgot Password?", onClick = {})
-                }
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                MajorButton("Create an Account", onNavigateToRegister)
-
-                Spacer(modifier = Modifier.height(50.dp))
-
-                Text(
-                    emailError + "\n\n" + passwordError,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                    textAlign = TextAlign.Center
-                )
             }
         }
     }
