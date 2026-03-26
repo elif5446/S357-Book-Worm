@@ -69,7 +69,7 @@ fun Login(onNavigateToRegister: () -> Unit) {
                                 emailError = "Email" + error + "n email address."
                             }
                             if (password.isEmpty()) {
-                                passwordError = "Password " + error + " password."
+                                passwordError = "Password" + error + " password."
                             }
 
                             if (emailError.isEmpty() && passwordError.isEmpty()) {}
