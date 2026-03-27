@@ -1,9 +1,15 @@
 package com.example.book_worm.API
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import com.example.book_worm.BuildConfig
+import androidx.core.content.edit
 
 object NetworkClient {
-    private const val BASE_URL = "https://book-worm-884513973712.northamerica-northeast1.run.app/"
+    private val BASE_URL = if (BuildConfig.DEBUG) {
+        "http://10.0.2.2:8000/" // Running Locally
+    } else {
+        "https://book-worm-884513973712.northamerica-northeast1.run.app/" // Running in Production
+    }
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
@@ -20,7 +26,7 @@ object TokenManager {
 
     fun saveToken(context: android.content.Context, token: String) {
         val prefs = context.getSharedPreferences(PREFERENCES_NAME, android.content.Context.MODE_PRIVATE)
-        prefs.edit().putString(KEY_TOKEN, token).apply()
+        prefs.edit { putString(KEY_TOKEN, token) }
     }
 
     fun getToken(context: android.content.Context): String? {
@@ -30,6 +36,6 @@ object TokenManager {
 
     fun clearToken(context: android.content.Context) {
         val prefs = context.getSharedPreferences(PREFERENCES_NAME, android.content.Context.MODE_PRIVATE)
-        prefs.edit().remove(KEY_TOKEN).apply()
+        prefs.edit { remove(KEY_TOKEN) }
     }
 }

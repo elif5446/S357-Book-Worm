@@ -2,6 +2,8 @@ from fastapi import APIRouter, HTTPException
 import os
 from supabase import create_client, Client
 from DTOs.user import Credentials, User, Account
+from dotenv import load_dotenv
+load_dotenv()
 
 router = APIRouter()
 def get_supabase() -> Client:
@@ -33,7 +35,6 @@ def register(credentials: Credentials):
         raise HTTPException(status_code=400, detail=f"Registration failed: {str(e)}")
 
     raise HTTPException(status_code=400, detail="Registration failed")
-    return Account()
 
 @router.post("/login/")
 def login(credentials: Credentials):
@@ -56,7 +57,6 @@ def login(credentials: Credentials):
                 )
                 return Account(token = response.session.access_token, user = user)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Registration failed: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Login failed: {str(e)}")
 
     raise HTTPException(status_code=400, detail="Registration failed")
-    return Account()

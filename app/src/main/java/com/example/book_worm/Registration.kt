@@ -93,7 +93,7 @@ fun Registration(onNavigateToLogin: () -> Unit) {
 
                             if (emailError.isEmpty() && passwordError.isEmpty()) {
                                 scope.launch {
-                                    val response = NetworkClient.authentication.register(Credentials(email, password))
+                                    val response = NetworkClient.authentication.register(Credentials(email.lowercase().trim(), password))
                                     kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
                                         if (response.isSuccessful) {
                                             val account = response.body()
