@@ -35,9 +35,9 @@ jobs:
       - name: Deploy to Google Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: book-worm
-          region: northamerica-northeast1
-          image: northamerica-northeast1-docker.pkg.dev/book-worm-491417/book-worm/backend:${{ github.sha }}
+          service: "book-worm"
+          region: "northamerica-northeast1"
+          image: "northamerica-northeast1-docker.pkg.dev/book-worm-491417/book-worm/backend:${{ github.sha }}"
           env_vars: |
             SUPABASE_URL=${{ secrets.SUPABASE_URL }}
             SUPABASE_API_KEY=${{ secrets.SUPABASE_API_KEY }}
