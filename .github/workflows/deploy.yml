@@ -1,0 +1,43 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [ "main" ]
+    paths: [ "server/**" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build and Push Container
+        run: |
+          # Use your specific Project ID here
+          gcloud auth configure-docker northamerica-northeast1-docker.pkg.dev
+          docker build -t northamerica-northeast1-docker.pkg.dev/book-worm-491417/book-worm/backend:${{ github.sha }} ./server
+          docker push northamerica-northeast1-docker.pkg.dev/book-worm-491417/book-worm/backend:${{ github.sha }}
+
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: book-worm-backend
+          region: northamerica-northeast1
+          image: northamerica-northeast1-docker.pkg.dev/book-worm-491417/book-worm/backend:${{ github.sha }}
+          env_vars: |
+            SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+            SUPABASE_API_KEY=${{ secrets.SUPABASE_API_KEY }}
