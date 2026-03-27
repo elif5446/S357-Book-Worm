@@ -11,6 +11,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.example.book_worm.API.TokenManager
 import com.example.book_worm.ui.theme.BookWormTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,6 +25,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             var currentView by remember { mutableStateOf(Views.Login) }
+            val savedToken = TokenManager.getToken(LocalContext.current)
+            if (savedToken != null) {
+                // TODO: Navigate to Home Screen
+                finish()
+            }
             BookWormTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     when(currentView) {

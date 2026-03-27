@@ -46,8 +46,8 @@ fun BWTextField(
         ),
         modifier = Modifier.fillMaxWidth(),
         textStyle = MaterialTheme.typography.bodyLarge,
-        visualTransformation = if (label == "Password") PasswordVisualTransformation() else VisualTransformation.None,
-        keyboardOptions = KeyboardOptions(keyboardType = if (label == "Password") KeyboardType.Password else KeyboardType.Text)
+        visualTransformation = if (label.contains("Password")) PasswordVisualTransformation() else VisualTransformation.None,
+        keyboardOptions = KeyboardOptions(keyboardType = if (label.contains("Password")) KeyboardType.Password else KeyboardType.Text)
     )
 }
 
