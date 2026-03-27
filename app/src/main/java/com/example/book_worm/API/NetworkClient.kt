@@ -5,11 +5,11 @@ import com.example.book_worm.BuildConfig
 import androidx.core.content.edit
 
 object NetworkClient {
-    private val BASE_URL = if (BuildConfig.DEBUG) {
+    private val BASE_URL = /* if (BuildConfig.DEBUG) {
         "http://10.0.2.2:8000/" // Running Locally
-    } else {
+    } else { */
         "https://book-worm-884513973712.northamerica-northeast1.run.app/" // Running in Production
-    }
+    // }
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())

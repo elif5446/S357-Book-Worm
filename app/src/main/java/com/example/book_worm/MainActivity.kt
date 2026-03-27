@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
             val savedToken = TokenManager.getToken(LocalContext.current)
             if (savedToken != null) {
                 // TODO: Navigate to Home Screen
-                finish()
+                // finish()
             }
             BookWormTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
