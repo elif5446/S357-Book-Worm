@@ -4,8 +4,8 @@ from supabase import create_client, Client
 from DTOs.user import Credentials, User, Account
 from dotenv import load_dotenv
 
-router = APIRouter()
 load_dotenv()
+router = APIRouter()
 def get_supabase() -> Client:
     url = os.environ.get('SUPABASE_URL')
     key = os.environ.get('SUPABASE_API_KEY')
