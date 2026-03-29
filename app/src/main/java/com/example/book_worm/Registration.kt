@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 fun Registration(onNavigateToLogin: () -> Unit) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordConfirmation by remember { mutableStateOf("") }
@@ -67,13 +68,14 @@ fun Registration(onNavigateToLogin: () -> Unit) {
                         .fillMaxWidth()
                         .padding(horizontal = 80.dp)
                 ) {
-                    Spacer(modifier = Modifier.height(200.dp))
+                    Spacer(modifier = Modifier.height(150.dp))
 
                     BWTextField(email, { email = it; resetErrors()}, "Email")
                     BWTextField(password, { password = it; resetErrors()  }, "Password")
                     BWTextField(passwordConfirmation, { passwordConfirmation = it; resetErrors() }, "Confirm Password")
+                    BWTextField(username, { username = it }, "Username")
 
-                    Spacer(modifier = Modifier.height(100.dp))
+                    Spacer(modifier = Modifier.height(50.dp))
 
                     Row(
                         horizontalArrangement = Arrangement.Center,
@@ -93,7 +95,8 @@ fun Registration(onNavigateToLogin: () -> Unit) {
 
                             if (emailError.isEmpty() && passwordError.isEmpty()) {
                                 scope.launch {
-                                    val response = NetworkClient.authentication.register(Credentials(email.lowercase().trim(), password))
+                                    val request = Credentials(email.lowercase().trim(), password, username.ifEmpty { null })
+                                    val response = NetworkClient.authentication.register(request)
                                     kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
                                         if (response.isSuccessful) {
                                             val account = response.body()

@@ -20,15 +20,26 @@ def register(credentials: Credentials):
     try:
         response = supabase.auth.sign_up({
             "email": credentials.email,
-            "password": credentials.password
+            "password": credentials.password,
+            "options": {
+                "data": {
+                    "full_name": credentials.username
+                }
+            }
         })
 
         if response.user:
             supabase.table('Users').insert({
                 'ID': response.user.id,
-                'email': response.user.email
+                'email': response.user.email,
+                'username': response.user.user_metadata.get("full_name")
             }).execute()
-            user = User(ID = response.user.id, email = response.user.email)
+
+            user = User(
+                ID = response.user.id,
+                email = response.user.email,
+                username = response.user.user_metadata.get("full_name")
+            )
             return Account(token = response.session.access_token, user = user)
     
     except Exception as e:
@@ -52,8 +63,7 @@ def login(credentials: Credentials):
                 user = User(
                     ID = profile['ID'],
                     email = profile['email'],
-                    first_name = profile.get('first_name'),
-                    last_name = profile.get('last_name')
+                    username = profile.get('username')
                 )
                 return Account(token = response.session.access_token, user = user)
     except Exception as e:

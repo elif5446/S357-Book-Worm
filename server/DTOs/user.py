@@ -2,15 +2,16 @@ from uuid import UUID
 from typing import Optional
 from pydantic import BaseModel, EmailStr, Field
 
-class Credentials(BaseModel):
-    email: EmailStr
-    password: str
+class Credentials(BaseModel): # The fields the user is presented with upon login or registration
+    email: EmailStr # Identifier
+    password: str # Secret
+    username: Optional[str] = None # Optional and not always included in the request
 
 class User(BaseModel):
     ID: UUID
     email: EmailStr
-    first_name: Optional[str] = Field(default=None, alias='firstName')
-    last_name: Optional[str] = Field(default=None, alias='lastName')
+    username: Optional[str] = None
+    # More...
 
     model_config = {
         "populate_by_name": True,
