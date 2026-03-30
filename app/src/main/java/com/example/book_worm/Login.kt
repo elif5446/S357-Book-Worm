@@ -71,7 +71,8 @@ fun Login(onNavigateToRegister: () -> Unit, onLoginSuccess: () -> Unit) {
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         MajorButton("Login") {
-                            if (!isValidEmail(email)) {
+                            val trimmedEmail = email.lowercase().trim()
+                            if (!isValidEmail(trimmedEmail)) {
                                 emailError = "Email is invalid. Please enter a valid email address."
                             }
                             if (password.length < 6) {
@@ -80,7 +81,7 @@ fun Login(onNavigateToRegister: () -> Unit, onLoginSuccess: () -> Unit) {
 
                             if (emailError.isEmpty() && passwordError.isEmpty()) {
                                 scope.launch {
-                                    val response = NetworkClient.authentication.login(Credentials(email.lowercase().trim(), password))
+                                    val response = NetworkClient.authentication.login(Credentials(trimmedEmail, password))
                                     kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
                                         if (response.isSuccessful) {
                                             val account = response.body()

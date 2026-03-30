@@ -51,6 +51,14 @@ val Typography = Typography(
         lineHeight = 35.sp,
         letterSpacing = 1.sp,
         color = Black
+    ),
+    bodySmall = TextStyle(
+        fontFamily = sulphur_point,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        lineHeight = 18.sp,
+        letterSpacing = 0.5.sp,
+        color = BookAppleRed
     )
     /* bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
