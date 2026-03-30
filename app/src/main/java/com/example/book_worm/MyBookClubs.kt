@@ -1,6 +1,8 @@
 package com.example.book_worm
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,7 +29,8 @@ import kotlinx.coroutines.launch
 fun MyBookClubs(
     onBrowsePublicClubs: () -> Unit,
     onCreateClub: () -> Unit,
-    onTabSelected: (BottomTab) -> Unit = {}
+    onTabSelected: (BottomTab) -> Unit = {},
+    onClubClick: () -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
 
@@ -173,7 +176,7 @@ fun MyBookClubs(
                         contentPadding = PaddingValues(bottom = 16.dp)
                     ) {
                         items(bookClubs) { club ->
-                            BookClubCard(club)
+                            BookClubCard(club, onClick = onClubClick)
                         }
                     }
                 }
@@ -184,9 +187,11 @@ fun MyBookClubs(
 }
 
 @Composable
-fun BookClubCard(club: BookClub) {
+fun BookClubCard(club: BookClub, onClick: () -> Unit = {}) {
     androidx.compose.material3.Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(20.dp),
         color = Green,
         tonalElevation = 4.dp,

@@ -28,7 +28,8 @@ class MainActivity : ComponentActivity() {
         Shelves,
         BookClub,
         Search,
-        Profile
+        Profile,
+        ReadingRats
     }
 
     private fun tabToView(tab: BottomTab): Views {
@@ -67,7 +68,8 @@ class MainActivity : ComponentActivity() {
                         Views.MyBookClubs -> MyBookClubs(
                             onBrowsePublicClubs = { /* TODO: Browse public clubs screen */ },
                             onCreateClub = { /* TODO: Create club screen */ },
-                            onTabSelected = { currentView = tabToView(it) }
+                            onTabSelected = { currentView = tabToView(it) },
+                            onClubClick = { currentView = Views.ReadingRats }
                         )
                         Views.Chat -> TabPlaceholderScreen(
                             label = "Chat",
@@ -81,7 +83,14 @@ class MainActivity : ComponentActivity() {
                             onTabSelected = { currentView = tabToView(it) }
                         )
                         Views.Search -> Search(onTabSelected = { currentView = tabToView(it) })
-                        Views.Profile -> Profile(onTabSelected = { currentView = tabToView(it) })
+                        Views.Profile -> Profile(
+                            onTabSelected = { currentView = tabToView(it) },
+                            onClubClick = { currentView = Views.ReadingRats }
+                        )
+                        Views.ReadingRats -> BookClubDetail(
+                            onBack = { currentView = Views.MyBookClubs },
+                            onTabSelected = { currentView = tabToView(it) }
+                        )
                     }
                 }
             }
