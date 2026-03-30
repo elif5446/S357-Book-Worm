@@ -24,7 +24,7 @@ import com.example.book_worm.ui.theme.MinorButton
 import kotlinx.coroutines.launch
 
 @Composable
-fun Login(onNavigateToRegister: () -> Unit, onLoginSuccess: () -> Unit = {}) {
+fun Login(onNavigateToRegister: () -> Unit, onLoginSuccess: () -> Unit) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var email by remember { mutableStateOf("") }
@@ -86,7 +86,10 @@ fun Login(onNavigateToRegister: () -> Unit, onLoginSuccess: () -> Unit = {}) {
                                         if (response.isSuccessful) {
                                             val account = response.body()
                                             account?.token?.let {
-                                                UserContext.user = account.user
+                                                account.user?.let { user ->
+                                                    UserContext.user = user
+                                                    TokenManager.saveUser(context, user)
+                                                }
                                                 TokenManager.saveToken(context, account.token)
                                                 UserContext.token = account.token
                                                 onLoginSuccess()
