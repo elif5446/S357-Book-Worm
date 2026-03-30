@@ -61,8 +61,8 @@ fun MajorButton(
         onClick = onClick,
         shape = Shapes.medium,
         colors = ButtonDefaults.buttonColors(
-            containerColor = DarkGreen,
-            contentColor = LightestGreen
+            containerColor = LightestGreen,
+            contentColor = DarkGreen
         ),
         contentPadding = PaddingValues(horizontal = 15.dp, vertical = 15.dp),
         elevation = ButtonDefaults.buttonElevation(
@@ -72,7 +72,7 @@ fun MajorButton(
     ) {
         Text(
             text = text.uppercase(),
-            style = MaterialTheme.typography.labelLarge.copy(color = LightestGreen),
+            style = MaterialTheme.typography.labelLarge.copy(color = DarkGreen),
             textAlign = TextAlign.Center
         )
     }

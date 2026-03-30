@@ -36,6 +36,7 @@ fun MyBookClubs(
         memberCount = 10,
         bookCount = 1,
         activeSince = "29/03/2026",
+        currentlyReading = "To Kill a Mockingbird",
         drawableRes = R.drawable.reading_rats
     )
 
@@ -181,14 +182,14 @@ fun BookClubCard(club: BookClub) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(Green)
-            .padding(12.dp),
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Club image / placeholder
+        // Club image — square white box with rounded corners
         Box(
             modifier = Modifier
                 .size(72.dp)
-                .clip(RoundedCornerShape(10.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(White),
             contentAlignment = Alignment.Center
         ) {
@@ -196,77 +197,87 @@ fun BookClubCard(club: BookClub) {
                 AsyncImage(
                     model = club.imageUrl,
                     contentDescription = club.name,
-                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(10.dp)),
-                    contentScale = ContentScale.Crop
+                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Fit
                 )
             } else if (club.drawableRes != null) {
                 androidx.compose.foundation.Image(
                     painter = androidx.compose.ui.res.painterResource(id = club.drawableRes),
                     contentDescription = club.name,
-                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(10.dp)),
-                    contentScale = ContentScale.Crop
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Fit
                 )
             } else {
                 Text(
                     text = club.name.take(2).uppercase(),
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontFamily = sulphur_point,
-                        fontSize = 22.sp,
-                        color = DarkGreen
-                    )
+                    fontFamily = sulphur_point,
+                    fontSize = 22.sp,
+                    color = DarkGreen
                 )
             }
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(10.dp))
 
-        Text(
-            text = club.name,
-            style = MaterialTheme.typography.labelLarge.copy(
+        // Left column: club name (bold) + currently reading book title below
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = club.name,
                 fontFamily = sulphur_point,
-                fontSize = 21.sp,
+                fontSize = 18.sp,
                 lineHeight = 20.sp,
                 color = DarkGreen,
-                fontWeight = FontWeight.Normal
-            ),
-            maxLines = 2,
-            modifier = Modifier.weight(1.1f)
-        )
+                fontWeight = FontWeight.Bold
+            )
+            if (!club.currentlyReading.isNullOrEmpty()) {
+                Text(
+                    text = club.currentlyReading,
+                    fontFamily = sulphur_point,
+                    fontSize = 13.sp,
+                    lineHeight = 15.sp,
+                    color = DarkGreen
+                )
+            }
+        }
 
-        Spacer(modifier = Modifier.width(8.dp))
-
+        // Right column: members, books, active since — all right-aligned, vertically centered
         Column(
             horizontalAlignment = Alignment.End,
-            modifier = Modifier.weight(1f)
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(start = 4.dp)
         ) {
             Text(
                 text = "${club.memberCount} members",
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontFamily = sulphur_point,
-                    fontSize = 14.sp,
-                    lineHeight = 15.sp,
-                    color = DarkGreen
-                )
+                fontFamily = sulphur_point,
+                fontSize = 13.sp,
+                lineHeight = 15.sp,
+                color = DarkGreen,
+                textAlign = TextAlign.End
             )
             Text(
-                text = "${club.bookCount} books",
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontFamily = sulphur_point,
-                    fontSize = 14.sp,
-                    lineHeight = 15.sp,
-                    color = DarkGreen
-                )
+                text = "${club.bookCount} book(s)",
+                fontFamily = sulphur_point,
+                fontSize = 13.sp,
+                lineHeight = 15.sp,
+                color = DarkGreen,
+                textAlign = TextAlign.End
             )
-            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = "Active since ${club.activeSince}",
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontFamily = sulphur_point,
-                    fontSize = 10.sp,
-                    lineHeight = 11.sp,
-                    color = DarkGreen
-                )
+                fontFamily = sulphur_point,
+                fontSize = 11.sp,
+                lineHeight = 13.sp,
+                color = DarkGreen,
+                textAlign = TextAlign.End
             )
         }
     }
 }
+
+
+
