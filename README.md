@@ -2,6 +2,8 @@
 ## Frontend
 ```
 ./gradlew installDebug && adb shell am start -n "com.example.book_worm/.MainActivity"
+
+For windows: .\gradlew installDebug ; adb shell am start -n "com.example.book_worm/.MainActivity"
 ```
 ## Backend
 ```
