@@ -41,6 +41,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun BookClubDetail(
     onBack: () -> Unit,
+    onChapterComments: () -> Unit = {},
     onTabSelected: (BottomTab) -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
@@ -312,7 +313,7 @@ fun BookClubDetail(
                     contentAlignment = Alignment.Center
                 ) {
                     Button(
-                        onClick = {},
+                        onClick = { onChapterComments() },
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Green,

@@ -29,7 +29,8 @@ class MainActivity : ComponentActivity() {
         BookClub,
         Search,
         Profile,
-        ReadingRats
+        ReadingRats,
+        ChapterComments
     }
 
     private fun tabToView(tab: BottomTab): Views {
@@ -89,6 +90,11 @@ class MainActivity : ComponentActivity() {
                         )
                         Views.ReadingRats -> BookClubDetail(
                             onBack = { currentView = Views.MyBookClubs },
+                            onChapterComments = { currentView = Views.ChapterComments },
+                            onTabSelected = { currentView = tabToView(it) }
+                        )
+                        Views.ChapterComments -> ChapterComments(
+                            onBack = { currentView = Views.ReadingRats },
                             onTabSelected = { currentView = tabToView(it) }
                         )
                     }

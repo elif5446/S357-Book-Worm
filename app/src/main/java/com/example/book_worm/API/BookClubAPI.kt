@@ -1,6 +1,8 @@
 package com.example.book_worm.API
 
 import com.example.book_worm.DTOs.BookClub
+import com.example.book_worm.DTOs.ChapterComment
+import com.example.book_worm.DTOs.PostCommentRequest
 import com.example.book_worm.DTOs.ReadingProgress
 import com.example.book_worm.DTOs.UpdateProgressRequest
 import retrofit2.Response
@@ -22,6 +24,20 @@ interface BookClubAPI {
         @Path("clubId") clubId: String,
         @Body body: UpdateProgressRequest
     ): Response<ReadingProgress>
+
+    @GET("bookclubs/{clubId}/comments/{chapterNumber}/")
+    suspend fun getChapterComments(
+        @Header("Authorization") token: String,
+        @Path("clubId") clubId: String,
+        @Path("chapterNumber") chapterNumber: Int
+    ): Response<List<ChapterComment>>
+
+    @POST("bookclubs/{clubId}/comments/")
+    suspend fun postChapterComment(
+        @Header("Authorization") token: String,
+        @Path("clubId") clubId: String,
+        @Body body: PostCommentRequest
+    ): Response<ChapterComment>
 }
 
 
