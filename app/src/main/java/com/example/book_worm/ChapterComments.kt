@@ -107,7 +107,7 @@ fun ChapterComments(
                     .padding(innerPadding)
             ) {
 
-                // ── HEADER ───────────────────────────────────────────────────
+                // HEADER
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -173,7 +173,7 @@ fun ChapterComments(
                         }
                     }
 
-                    // ── CHAPTER NAVIGATION ROW ───────────────────────────────
+                    //  CHAPTER NAVIGATION ROW
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -345,7 +345,7 @@ fun ChapterComments(
                     )
                 }
 
-                // ── COMMENTS LIST + WRITE AREA ───────────────────────────────
+                // COMMENTS LIST + WRITE AREA
                 // This column fills all remaining space and puts WRITE COMMENT at bottom
                 Column(
                     modifier = Modifier
@@ -396,7 +396,7 @@ fun ChapterComments(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // ── Write area OR Write Comment button ───────────────────
+                    //Write area OR Write Comment button
                     if (showWriteArea) {
                         Surface(
                             shape = RoundedCornerShape(14.dp),

@@ -83,7 +83,7 @@ fun BookClubDetail(
                     .verticalScroll(rememberScrollState())
             ) {
 
-                // ── HEADER ─────────────────────────────────────────────────
+                //  HEADER
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -114,7 +114,7 @@ fun BookClubDetail(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // ── CURRENTLY READING ───────────────────────────────────────
+                //  CURRENTLY READING
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -210,7 +210,7 @@ fun BookClubDetail(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // ── DIVIDER ─────────────────────────────────────────────────
+                //  DIVIDER
                 HorizontalDivider(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     color = DarkGreen.copy(alpha = 0.2f),
@@ -219,7 +219,7 @@ fun BookClubDetail(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // ── MONTHLY READING GOAL ────────────────────────────────────
+                //  MONTHLY READING GOAL
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -236,7 +236,7 @@ fun BookClubDetail(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // 🐛 WORM PROGRESS BAR — full width matching the bounds below
+                    // WORM PROGRESS BAR
                     WormProgressBar(
                         progress = currentPages.toFloat() / goalPages.toFloat(),
                         modifier = Modifier
@@ -296,7 +296,7 @@ fun BookClubDetail(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // ── DIVIDER ─────────────────────────────────────────────────
+                //  DIVIDER
                 HorizontalDivider(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     color = DarkGreen.copy(alpha = 0.2f),
@@ -305,7 +305,7 @@ fun BookClubDetail(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // ── CHAPTER COMMENTS BUTTON ─────────────────────────────────
+                // CHAPTER COMMENTS BUTTON
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -339,7 +339,7 @@ fun BookClubDetail(
         }
     } // end Box
 
-    // ── UPDATE PROGRESS DIALOG ───────────────────────────────────────────
+    //  UPDATE PROGRESS DIALOG
     if (showUpdateDialog) {
         UpdateProgressDialog(
             currentPages = currentPages,
@@ -380,7 +380,7 @@ fun BookClubDetail(
     }
 }
 
-// ── UPDATE PROGRESS DIALOG ───────────────────────────────────────────────────
+// UPDATE PROGRESS DIALOG
 @Composable
 fun UpdateProgressDialog(
     currentPages: Int,
@@ -485,7 +485,7 @@ fun UpdateProgressDialog(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // FINISHED and UPDATE buttons — same color, slim pill
+                    // FINISHED and UPDATE buttons
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.fillMaxWidth(),
@@ -570,48 +570,4 @@ fun UpdateProgressDialog(
         }
     }
 }
-
-// WormProgressBar is defined in WormProgressBar.kt
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
