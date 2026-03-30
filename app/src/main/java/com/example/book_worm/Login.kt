@@ -24,7 +24,7 @@ import com.example.book_worm.ui.theme.MinorButton
 import kotlinx.coroutines.launch
 
 @Composable
-fun Login(onNavigateToRegister: () -> Unit) {
+fun Login(onNavigateToRegister: () -> Unit, onLoginSuccess: () -> Unit) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var email by remember { mutableStateOf("") }
@@ -85,10 +85,13 @@ fun Login(onNavigateToRegister: () -> Unit) {
                                         if (response.isSuccessful) {
                                             val account = response.body()
                                             account?.token?.let {
-                                                UserContext.user = account.user
+                                                account.user?.let { user ->
+                                                    UserContext.user = user
+                                                    TokenManager.saveUser(context, user)
+                                                }
                                                 TokenManager.saveToken(context, account.token)
                                                 UserContext.token = account.token
-                                                // TODO: Navigate to Home Screen
+                                                onLoginSuccess()
                                             } ?: run {
                                                 emailError = "The password for this email is incorrect. Please enter the correct password or tap \"Forgot Password?\". You can also register with another email address."
                                             }

@@ -60,10 +60,11 @@ def login(credentials: Credentials):
         if response.user:
             profile = supabase.table('Users').select("*").eq("ID", response.user.id).single().execute().data
             if profile:
+                profile_username = profile.get('username') or profile.get('usernamen')
                 user = User(
                     ID = profile['ID'],
                     email = profile['email'],
-                    username = profile.get('username')
+                    username = profile_username
                 )
                 return Account(token = response.session.access_token, user = user)
     except Exception as e:

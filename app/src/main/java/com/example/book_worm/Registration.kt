@@ -101,7 +101,10 @@ fun Registration(onNavigateToLogin: () -> Unit) {
                                         if (response.isSuccessful) {
                                             val account = response.body()
                                             account?.token?.let {
-                                                UserContext.user = account.user
+                                                account.user?.let { user ->
+                                                    UserContext.user = user
+                                                    TokenManager.saveUser(context, user)
+                                                }
                                                 TokenManager.saveToken(context, account.token)
                                                 UserContext.token = account.token
                                                 // TODO: Navigate to Home Screen
