@@ -46,8 +46,9 @@ fun BWTextField(
         ),
         modifier = Modifier.fillMaxWidth(),
         textStyle = MaterialTheme.typography.bodyLarge,
+        singleLine = true,
         visualTransformation = if (label.contains("Password")) PasswordVisualTransformation() else VisualTransformation.None,
-        keyboardOptions = KeyboardOptions(keyboardType = if (label.contains("Password")) KeyboardType.Password else KeyboardType.Text)
+        keyboardOptions = KeyboardOptions(keyboardType = if (label.contains("Password")) KeyboardType.Password else if (label.contains("Email")) KeyboardType.Email else KeyboardType.Text)
     )
 }
 
@@ -60,8 +61,8 @@ fun MajorButton(
         onClick = onClick,
         shape = Shapes.medium,
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
+            containerColor = DarkGreen,
+            contentColor = LightestGreen
         ),
         contentPadding = PaddingValues(horizontal = 15.dp, vertical = 15.dp),
         elevation = ButtonDefaults.buttonElevation(
@@ -71,7 +72,7 @@ fun MajorButton(
     ) {
         Text(
             text = text.uppercase(),
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelLarge.copy(color = LightestGreen),
             textAlign = TextAlign.Center
         )
     }

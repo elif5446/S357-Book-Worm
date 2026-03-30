@@ -9,6 +9,7 @@ android {
     compileSdk {
         version = release(36)
     }
+    buildToolsVersion = "36.0.0"
 
     defaultConfig {
         applicationId = "com.example.book_worm"
@@ -61,4 +62,5 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.7.0")
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("io.coil-kt:coil-compose:2.6.0")
 }

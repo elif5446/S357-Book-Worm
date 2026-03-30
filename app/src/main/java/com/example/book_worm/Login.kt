@@ -24,18 +24,13 @@ import com.example.book_worm.ui.theme.MinorButton
 import kotlinx.coroutines.launch
 
 @Composable
-fun Login(onNavigateToRegister: () -> Unit) {
+fun Login(onNavigateToRegister: () -> Unit, onLoginSuccess: () -> Unit = {}) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var emailError by remember { mutableStateOf("") }
-    var passwordError by remember { mutableStateOf("") }
-
-    fun resetErrors() {
-        emailError = ""
-        passwordError = ""
-    }
+    var errorMessage by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
@@ -61,47 +56,76 @@ fun Login(onNavigateToRegister: () -> Unit) {
                 ) {
                     Spacer(modifier = Modifier.height(275.dp))
 
-                    BWTextField(email, { email = it; resetErrors() }, "Email")
-                    BWTextField(password, { password = it; resetErrors() }, "Password")
+                    BWTextField(email, { email = it; errorMessage = "" }, "Email")
+                    BWTextField(password, { password = it; errorMessage = "" }, "Password")
 
-                    Spacer(modifier = Modifier.height(25.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Error message — right inside the apple, always visible
+                    if (errorMessage.isNotEmpty()) {
+                        Text(
+                            text = errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
 
                     Row(
                         horizontalArrangement = Arrangement.Center,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        MajorButton("Login") {
-                            if (!isValidEmail(email)) {
-                                emailError = "Email is invalid. Please enter a valid email address."
-                            }
-                            if (password.length < 6) {
-                                passwordError = "Password needs to be at least six characters long. Please enter another password."
-                            }
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(48.dp)
+                            )
+                        } else {
+                            MajorButton("Login") {
+                                val trimmedEmail = email.lowercase().trim()
+                                var valid = true
 
-                            if (emailError.isEmpty() && passwordError.isEmpty()) {
-                                scope.launch {
-                                    val response = NetworkClient.authentication.login(Credentials(email.lowercase().trim(), password))
-                                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                                        if (response.isSuccessful) {
-                                            val account = response.body()
-                                            account?.token?.let {
-                                                UserContext.user = account.user
-                                                TokenManager.saveToken(context, account.token)
-                                                UserContext.token = account.token
-                                                // TODO: Navigate to Home Screen
-                                            } ?: run {
-                                                emailError = "The password for this email is incorrect. Please enter the correct password or tap \"Forgot Password?\". You can also register with another email address."
-                                            }
-                                        } else {
-                                            val error = response.errorBody()?.string()
-                                            try {
-                                                error?.let {
-                                                    emailError = org.json.JSONObject(error).getString("detail")
-                                                } ?: run {
-                                                    emailError = "Network Error"
+                                if (!isValidEmail(trimmedEmail)) {
+                                    errorMessage = "Email is invalid. Please enter a valid email address."
+                                    valid = false
+                                } else if (password.length < 6) {
+                                    errorMessage = "Password must be at least 6 characters."
+                                    valid = false
+                                }
+
+                                if (valid) {
+                                    isLoading = true
+                                    scope.launch {
+                                        try {
+                                            val response = NetworkClient.authentication.login(Credentials(trimmedEmail, password))
+                                            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                                                if (response.isSuccessful) {
+                                                    val account = response.body()
+                                                    account?.token?.let {
+                                                        UserContext.user = account.user
+                                                        TokenManager.saveToken(context, account.token)
+                                                        UserContext.token = account.token
+                                                        onLoginSuccess()
+                                                    } ?: run {
+                                                        errorMessage = "Incorrect email or password."
+                                                    }
+                                                } else {
+                                                    val error = response.errorBody()?.string()
+                                                    errorMessage = try {
+                                                        error?.let { org.json.JSONObject(it).getString("detail") }
+                                                            ?: "Login failed (${response.code()})"
+                                                    } catch (e: Exception) {
+                                                        "Server error: ${response.code()}"
+                                                    }
                                                 }
-                                            } catch (e: Exception) {
-                                                emailError = "Server Error: ${response.code()}"
+                                                isLoading = false
+                                            }
+                                        } catch (e: Exception) {
+                                            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                                                errorMessage = "Network error: ${e.message}"
+                                                isLoading = false
                                             }
                                         }
                                     }
@@ -111,7 +135,7 @@ fun Login(onNavigateToRegister: () -> Unit) {
                     }
                 }
 
-                Spacer(modifier = Modifier.height(33.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -120,18 +144,7 @@ fun Login(onNavigateToRegister: () -> Unit) {
                     MinorButton("Forgot Password?", onClick = {})
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
-
                 MajorButton("Create an Account", onNavigateToRegister)
-
-                Spacer(modifier = Modifier.height(50.dp))
-
-                Text(
-                    if (emailError.isEmpty()) passwordError else (emailError + "\n\n" + passwordError),
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                    textAlign = TextAlign.Center
-                )
             }
         }
     }

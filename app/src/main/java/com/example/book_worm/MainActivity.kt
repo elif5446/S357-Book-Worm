@@ -18,7 +18,8 @@ import com.example.book_worm.ui.theme.BookWormTheme
 class MainActivity : ComponentActivity() {
     enum class Views {
         Login,
-        Registration
+        Registration,
+        MyBookClubs
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,14 +28,24 @@ class MainActivity : ComponentActivity() {
             var currentView by remember { mutableStateOf(Views.Login) }
             val savedToken = TokenManager.getToken(LocalContext.current)
             if (savedToken != null) {
-                // TODO: Navigate to Home Screen
-                // finish()
+                UserContext.token = savedToken
+                currentView = Views.MyBookClubs
             }
             BookWormTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     when(currentView) {
-                        Views.Login -> Login { currentView = Views.Registration }
-                        Views.Registration -> Registration { currentView = Views.Login }
+                        Views.Login -> Login(
+                            onNavigateToRegister = { currentView = Views.Registration },
+                            onLoginSuccess = { currentView = Views.MyBookClubs }
+                        )
+                        Views.Registration -> Registration(
+                            onNavigateToLogin = { currentView = Views.Login },
+                            onRegisterSuccess = { currentView = Views.MyBookClubs }
+                        )
+                        Views.MyBookClubs -> MyBookClubs(
+                            onBrowsePublicClubs = { /* TODO: Browse public clubs screen */ },
+                            onCreateClub = { /* TODO: Create club screen */ }
+                        )
                     }
                 }
             }

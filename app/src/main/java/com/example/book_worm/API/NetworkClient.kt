@@ -18,6 +18,10 @@ object NetworkClient {
     val authentication: Authentication by lazy {
         retrofit.create(Authentication::class.java)
     }
+
+    val bookClub: BookClubAPI by lazy {
+        retrofit.create(BookClubAPI::class.java)
+    }
 }
 
 object TokenManager {
