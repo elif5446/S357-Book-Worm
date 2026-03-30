@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
         return when (tab) {
             BottomTab.Chat -> Views.Chat
             BottomTab.Shelves -> Views.Shelves
-            BottomTab.BookClub -> Views.BookClub
+            BottomTab.BookClub -> Views.MyBookClubs
             BottomTab.Search -> Views.Search
             BottomTab.Profile -> Views.Profile
         }
@@ -51,22 +51,23 @@ class MainActivity : ComponentActivity() {
             if (savedToken != null) {
                 UserContext.token = savedToken
                 UserContext.user = TokenManager.getUser(context)
-                currentView = Views.MyBookClubs
+                currentView = Views.Profile
             }
             BookWormTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     when(currentView) {
                         Views.Login -> Login(
                             onNavigateToRegister = { currentView = Views.Registration },
-                            onLoginSuccess = { currentView = Views.MyBookClubs }
+                            onLoginSuccess = { currentView = Views.Profile }
                         )
                         Views.Registration -> Registration(
                             onNavigateToLogin = { currentView = Views.Login },
-                            onRegisterSuccess = { currentView = Views.MyBookClubs }
+                            onRegisterSuccess = { currentView = Views.Profile }
                         )
                         Views.MyBookClubs -> MyBookClubs(
                             onBrowsePublicClubs = { /* TODO: Browse public clubs screen */ },
-                            onCreateClub = { /* TODO: Create club screen */ }
+                            onCreateClub = { /* TODO: Create club screen */ },
+                            onTabSelected = { currentView = tabToView(it) }
                         )
                         Views.Chat -> TabPlaceholderScreen(
                             label = "Chat",

@@ -26,7 +26,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun MyBookClubs(
     onBrowsePublicClubs: () -> Unit,
-    onCreateClub: () -> Unit
+    onCreateClub: () -> Unit,
+    onTabSelected: (BottomTab) -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
 
@@ -37,7 +38,7 @@ fun MyBookClubs(
         bookCount = 1,
         activeSince = "29/03/2026",
         currentlyReading = "To Kill a Mockingbird",
-        drawableRes = R.drawable.reading_rats
+        drawableRes = R.drawable.reading_rats_icon
     )
 
     var bookClubs by remember { mutableStateOf<List<BookClub>>(listOf(hardcodedClub)) }
@@ -64,8 +65,70 @@ fun MyBookClubs(
     }
 
     Box(modifier = Modifier.fillMaxSize().background(LightGreen)) {
-        Column(modifier = Modifier.fillMaxSize()) {
-
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            containerColor = LightGreen,
+            bottomBar = {
+                Column {
+                    // Browse + Create buttons pinned above the tab bar
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(LightGreen)
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = onBrowsePublicClubs,
+                            shape = RoundedCornerShape(33),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = LightestGreen,
+                                contentColor = DarkGreen
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp),
+                            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 14.dp),
+                            modifier = Modifier.weight(1f).padding(end = 12.dp)
+                        ) {
+                            Text(
+                                text = "BROWSE PUBLIC BOOK\nCLUBS",
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontFamily = sulphur_point,
+                                    fontSize = 16.sp,
+                                    lineHeight = 16.sp,
+                                    color = DarkGreen
+                                ),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                        Button(
+                            onClick = onCreateClub,
+                            shape = CircleShape,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = LightestGreen,
+                                contentColor = DarkGreen
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp),
+                            contentPadding = PaddingValues(0.dp),
+                            modifier = Modifier.size(64.dp)
+                        ) {
+                            Text(
+                                text = "+",
+                                fontFamily = sulphur_point,
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Light,
+                                color = DarkGreen
+                            )
+                        }
+                    }
+                    BottomTabBar(
+                        selectedTab = BottomTab.BookClub,
+                        onTabSelected = onTabSelected
+                    )
+                }
+            }
+        ) { innerPadding ->
+        Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
 
             Box(
                 modifier = Modifier
@@ -85,7 +148,6 @@ fun MyBookClubs(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
 
             when {
                 isLoading -> {
@@ -108,7 +170,7 @@ fun MyBookClubs(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(bottom = 120.dp) // space for bottom buttons
+                        contentPadding = PaddingValues(bottom = 16.dp)
                     ) {
                         items(bookClubs) { club ->
                             BookClubCard(club)
@@ -116,165 +178,123 @@ fun MyBookClubs(
                     }
                 }
             }
-        }
-
-        // Bottom buttons
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomStart)
-                .padding(horizontal = 16.dp, vertical = 20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // "Browse Public Book Clubs" button
-            Button(
-                onClick = onBrowsePublicClubs,
-                shape = RoundedCornerShape(33),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = LightestGreen,
-                    contentColor = DarkGreen
-                ),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp),
-                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 14.dp),
-                modifier = Modifier.weight(1f).padding(end = 12.dp)
-            ) {
-                Text(
-                    text = "BROWSE PUBLIC BOOK\nCLUBS",
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontFamily = sulphur_point,
-                        fontSize = 16.sp,
-                        lineHeight = 16.sp,
-                        color = DarkGreen
-                    ),
-                    textAlign = TextAlign.Center
-                )
-            }
-
-            // "+" create button
-            Button(
-                onClick = onCreateClub,
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = LightestGreen,
-                    contentColor = DarkGreen
-                ),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp),
-                contentPadding = PaddingValues(0.dp),
-                modifier = Modifier.size(64.dp)
-            ) {
-                Text(
-                    text = "+",
-                    fontFamily = sulphur_point,
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Light,
-                    color = DarkGreen
-                )
-            }
-        }
-    }
+        } // end Column
+        } // end Scaffold
+    } // end Box
 }
 
 @Composable
 fun BookClubCard(club: BookClub) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Green)
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+    androidx.compose.material3.Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        color = Green,
+        tonalElevation = 4.dp,
+        shadowElevation = 4.dp,
+        border = androidx.compose.foundation.BorderStroke(1.dp, DarkGreen.copy(alpha = 0.4f))
     ) {
-        // Club image — square white box with rounded corners
-        Box(
+        Row(
             modifier = Modifier
-                .size(72.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(White),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            if (club.imageUrl != null) {
-                AsyncImage(
-                    model = club.imageUrl,
-                    contentDescription = club.name,
-                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.Fit
-                )
-            } else if (club.drawableRes != null) {
-                androidx.compose.foundation.Image(
-                    painter = androidx.compose.ui.res.painterResource(id = club.drawableRes),
-                    contentDescription = club.name,
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(RoundedCornerShape(8.dp)),
-                    contentScale = ContentScale.Fit
-                )
-            } else {
+            // Club icon — white rounded box
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(White),
+                contentAlignment = Alignment.Center
+            ) {
+                if (club.imageUrl != null) {
+                    AsyncImage(
+                        model = club.imageUrl,
+                        contentDescription = club.name,
+                        modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(14.dp)),
+                        contentScale = ContentScale.Fit
+                    )
+                } else if (club.drawableRes != null) {
+                    androidx.compose.foundation.Image(
+                        painter = androidx.compose.ui.res.painterResource(id = club.drawableRes),
+                        contentDescription = club.name,
+                        modifier = Modifier.size(48.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                } else {
+                    Text(text = club.name.take(2).uppercase(), fontFamily = sulphur_point, fontSize = 20.sp, color = DarkGreen)
+                }
+            }
+
+            Spacer(modifier = Modifier.width(10.dp))
+
+            // Middle: club name + currently reading
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text(
-                    text = club.name.take(2).uppercase(),
+                    text = club.name,
                     fontFamily = sulphur_point,
                     fontSize = 22.sp,
-                    color = DarkGreen
+                    lineHeight = 24.sp,
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 0.5.sp,
+                    color = DarkGreen,
+                    maxLines = 1
                 )
+                if (!club.currentlyReading.isNullOrEmpty()) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = club.currentlyReading,
+                        fontFamily = sulphur_point,
+                        fontSize = 17.sp,
+                        lineHeight = 19.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = DarkGreen.copy(alpha = 0.6f),
+                        maxLines = 2
+                    )
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
-        // Left column: club name (bold) + currently reading book title below
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = club.name,
-                fontFamily = sulphur_point,
-                fontSize = 18.sp,
-                lineHeight = 20.sp,
-                color = DarkGreen,
-                fontWeight = FontWeight.Bold
-            )
-            if (!club.currentlyReading.isNullOrEmpty()) {
+            // Right: stats right-aligned, no fixed width
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text(
-                    text = club.currentlyReading,
+                    text = "${club.memberCount} members",
                     fontFamily = sulphur_point,
-                    fontSize = 13.sp,
-                    lineHeight = 15.sp,
-                    color = DarkGreen
+                    fontSize = 18.sp,
+                    lineHeight = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = DarkGreen,
+                    textAlign = TextAlign.End,
+                    maxLines = 1
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "${club.bookCount} book(s)",
+                    fontFamily = sulphur_point,
+                    fontSize = 15.sp,
+                    lineHeight = 17.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = DarkGreen,
+                    textAlign = TextAlign.End,
+                    maxLines = 1
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "Active since ${club.activeSince}",
+                    fontFamily = sulphur_point,
+                    fontSize = 11.sp,
+                    lineHeight = 13.sp,
+                    color = DarkGreen,
+                    textAlign = TextAlign.End
                 )
             }
-        }
-
-        // Right column: members, books, active since — all right-aligned, vertically centered
-        Column(
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(start = 4.dp)
-        ) {
-            Text(
-                text = "${club.memberCount} members",
-                fontFamily = sulphur_point,
-                fontSize = 13.sp,
-                lineHeight = 15.sp,
-                color = DarkGreen,
-                textAlign = TextAlign.End
-            )
-            Text(
-                text = "${club.bookCount} book(s)",
-                fontFamily = sulphur_point,
-                fontSize = 13.sp,
-                lineHeight = 15.sp,
-                color = DarkGreen,
-                textAlign = TextAlign.End
-            )
-            Text(
-                text = "Active since ${club.activeSince}",
-                fontFamily = sulphur_point,
-                fontSize = 11.sp,
-                lineHeight = 13.sp,
-                color = DarkGreen,
-                textAlign = TextAlign.End
-            )
         }
     }
 }

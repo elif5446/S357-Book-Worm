@@ -10,7 +10,8 @@ data class BookClub(
     val activeSince: String,
     val currentlyReading: String = "",
     val imageUrl: String? = null,
-    val drawableRes: Int? = null
+    val drawableRes: Int? = null,
+    val nameImageRes: Int? = null
 )
 
 

@@ -27,6 +27,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -233,8 +234,8 @@ private fun BookClubsSection(modifier: Modifier = Modifier) {
 
         ClubCard(
             clubName = "Reading Rats",
-            members = 5,
-            totalBooksRead = 23
+            members = 10,
+            totalBooksRead = 1
         )
     }
 }
@@ -245,25 +246,25 @@ private fun ClubCard(
     members: Int,
     totalBooksRead: Int
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .shadow(elevation = 10.dp, shape = RoundedCornerShape(24.dp)),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = HeaderGreen),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        color = HeaderGreen,
+        tonalElevation = 4.dp,
+        shadowElevation = 4.dp,
+        border = androidx.compose.foundation.BorderStroke(1.dp, DarkGreen.copy(alpha = 0.4f))
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Icon box
             Box(
                 modifier = Modifier
-                    .size(74.dp)
-                    .clip(RoundedCornerShape(22.dp))
+                    .size(64.dp)
+                    .clip(RoundedCornerShape(14.dp))
                     .background(Color.White),
                 contentAlignment = Alignment.Center
             ) {
@@ -271,66 +272,75 @@ private fun ClubCard(
                     painter = painterResource(id = R.drawable.reading_rats_icon),
                     contentDescription = "Reading Rats icon",
                     contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(58.dp)
+                    modifier = Modifier.size(48.dp)
                 )
             }
 
+            Spacer(modifier = Modifier.width(10.dp))
+
+            // Middle: club name + currently reading
             Column(
-                modifier = Modifier.width(96.dp),
+                modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = clubName,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontFamily = sulphur_point,
-                        fontSize = 24.sp,
-                        lineHeight = 24.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = DarkGreen
-                    )
+                    fontFamily = sulphur_point,
+                    fontSize = 18.sp,
+                    lineHeight = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 0.5.sp,
+                    color = DarkGreen,
+                    maxLines = 1
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "To Kill a Mockingbird",
+                    fontFamily = sulphur_point,
+                    fontSize = 17.sp,
+                    lineHeight = 19.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = DarkGreen.copy(alpha = 0.6f),
+                    maxLines = 2
                 )
             }
 
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // Right: stats right-aligned, no fixed width
             Column(
-                modifier = Modifier.width(180.dp),
                 horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = "$members members",
+                    fontFamily = sulphur_point,
+                    fontSize = 18.sp,
+                    lineHeight = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = DarkGreen,
                     textAlign = TextAlign.End,
-                    maxLines = 1,
-                    softWrap = false,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontFamily = sulphur_point,
-                        fontSize = 20.sp,
-                        lineHeight = 20.sp,
-                        color = Color(0xFF404040)
-                    )
+                    maxLines = 1
                 )
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "$totalBooksRead books",
+                    text = "$totalBooksRead book(s)",
+                    fontFamily = sulphur_point,
+                    fontSize = 15.sp,
+                    lineHeight = 17.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = DarkGreen,
                     textAlign = TextAlign.End,
-                    maxLines = 1,
-                    softWrap = false,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontFamily = sulphur_point,
-                        fontSize = 20.sp,
-                        lineHeight = 20.sp,
-                        color = Color(0xFF404040)
-                    )
+                    maxLines = 1
                 )
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "Active since 02/03/2024",
-                    textAlign = TextAlign.End,
-                    maxLines = 1,
-                    softWrap = false,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontFamily = sulphur_point,
-                        fontSize = 14.sp,
-                        lineHeight = 14.sp,
-                        color = Color(0xFF404040)
-                    )
+                    text = "Active since 29/03/2026",
+                    fontFamily = sulphur_point,
+                    fontSize = 11.sp,
+                    lineHeight = 13.sp,
+                    color = DarkGreen,
+                    textAlign = TextAlign.End
                 )
             }
         }
