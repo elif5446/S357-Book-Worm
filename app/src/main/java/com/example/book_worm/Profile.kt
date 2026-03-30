@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -42,6 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.book_worm.ui.theme.Black
@@ -81,7 +81,7 @@ fun Profile(onTabSelected: (BottomTab) -> Unit) {
                 .padding(innerPadding)
                 .background(BodyGreen)
         ) {
-            val headerHeight = maxHeight * 0.48f
+            val headerHeight = maxHeight * 0.45f
 
             Column(
                 modifier = Modifier
@@ -522,10 +522,13 @@ private fun RabbitAvatar() {
             .background(Color.White),
         contentAlignment = androidx.compose.ui.Alignment.Center
     ) {
-        Text(
-            text = "🐰",
-            style = MaterialTheme.typography.headlineLarge.copy(fontSize = 28.sp),
-            modifier = Modifier.offset(y = (-1).dp)
+        Image(
+            painter = painterResource(id = R.drawable.profile_pic),
+            contentDescription = "Profile picture",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(CircleShape)
         )
     }
 }
@@ -533,18 +536,42 @@ private fun RabbitAvatar() {
 @Composable
 private fun StatsSection(modifier: Modifier = Modifier) {
     BoxWithConstraints(modifier = modifier) {
-        val cardWidth = (maxWidth - 44.dp) / 3
+        val horizontalInset = 2.dp
+        val separatorWidth = 1.dp
+        val linePadding = 14.dp
+        val totalGapsWidth = separatorWidth * 2 + linePadding * 4
+        val cardShrink = 6.dp
+        val baseWidth = (maxWidth - (horizontalInset * 2) - totalGapsWidth) / 3
+        val cardWidth = (baseWidth - cardShrink).coerceAtLeast(0.dp)
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = horizontalInset),
+            horizontalArrangement = Arrangement.spacedBy(0.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             StatCard(number = "20", label = "Books Read", modifier = Modifier.width(cardWidth))
+            Spacer(modifier = Modifier.width(linePadding))
+            StatsDivider(color = Color(0xFF91A78B), width = separatorWidth, height = 57.dp)
+            Spacer(modifier = Modifier.width(linePadding))
             StatCard(number = "1", label = "Book Clubs", modifier = Modifier.width(cardWidth))
+            Spacer(modifier = Modifier.width(linePadding))
+            StatsDivider(color = Color(0xFF91A78B), width = separatorWidth, height = 57.dp)
+            Spacer(modifier = Modifier.width(linePadding))
             StatCard(number = "10", label = "Friends", modifier = Modifier.width(cardWidth))
         }
     }
+}
+
+@Composable
+private fun StatsDivider(color: Color, width: Dp, height: Dp) {
+    Box(
+        modifier = Modifier
+            .width(width)
+            .height(height)
+            .background(color)
+    )
 }
 
 @Composable
@@ -562,30 +589,30 @@ private fun StatCard(number: String, label: String, modifier: Modifier = Modifie
                 .padding(horizontal = 8.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = number,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontFamily = sulphur_point,
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = DarkGreen
+                Text(
+                    text = number,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontFamily = sulphur_point,
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
                 )
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = label,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontFamily = sulphur_point,
-                    fontSize = 16.sp,
-                    lineHeight = 17.sp,
-                    letterSpacing = 0.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = Color(0xFF5B5B5B)
-                ),
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = label,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontFamily = sulphur_point,
+                        fontSize = 14.sp,
+                        lineHeight = 17.sp,
+                        letterSpacing = 0.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color(0xFF3C5104)
+                    ),
                 maxLines = 2
             )
         }
