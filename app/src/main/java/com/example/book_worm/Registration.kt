@@ -25,7 +25,7 @@ import com.example.book_worm.ui.theme.MinorButton
 import kotlinx.coroutines.launch
 
 @Composable
-fun Registration(onNavigateToLogin: () -> Unit) {
+fun Registration(onNavigateToLogin: () -> Unit, onRegisterSuccess: () -> Unit = {}) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var username by remember { mutableStateOf("") }
@@ -82,7 +82,8 @@ fun Registration(onNavigateToLogin: () -> Unit) {
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         MajorButton("Create\nAccount") {
-                            if (!isValidEmail(email)) {
+                            val trimmedEmail = email.lowercase().trim()
+                            if (!isValidEmail(trimmedEmail)) {
                                 emailError = "Email is invalid. Please enter a valid email address."
                             }
                             if (password.length < 6) {
@@ -95,7 +96,7 @@ fun Registration(onNavigateToLogin: () -> Unit) {
 
                             if (emailError.isEmpty() && passwordError.isEmpty()) {
                                 scope.launch {
-                                    val request = Credentials(email.lowercase().trim(), password, username.ifEmpty { null })
+                                    val request = Credentials(trimmedEmail, password, username.ifEmpty { null })
                                     val response = NetworkClient.authentication.register(request)
                                     kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
                                         if (response.isSuccessful) {
@@ -107,7 +108,7 @@ fun Registration(onNavigateToLogin: () -> Unit) {
                                                 }
                                                 TokenManager.saveToken(context, account.token)
                                                 UserContext.token = account.token
-                                                // TODO: Navigate to Home Screen
+                                                onRegisterSuccess()
                                             } ?: run {
                                                 emailError = "Network error"
                                             }

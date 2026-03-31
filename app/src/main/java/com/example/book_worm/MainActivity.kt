@@ -23,18 +23,21 @@ class MainActivity : ComponentActivity() {
     enum class Views {
         Login,
         Registration,
+        MyBookClubs,
         Chat,
         Shelves,
         BookClub,
         Search,
-        Profile
+        Profile,
+        ReadingRats,
+        ChapterComments
     }
 
     private fun tabToView(tab: BottomTab): Views {
         return when (tab) {
             BottomTab.Chat -> Views.Chat
             BottomTab.Shelves -> Views.Shelves
-            BottomTab.BookClub -> Views.BookClub
+            BottomTab.BookClub -> Views.MyBookClubs
             BottomTab.Search -> Views.Search
             BottomTab.Profile -> Views.Profile
         }
@@ -51,7 +54,6 @@ class MainActivity : ComponentActivity() {
                 UserContext.token = savedToken
                 UserContext.user = TokenManager.getUser(context)
                 currentView = Views.Profile
-                // finish()
             }
             BookWormTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -60,7 +62,16 @@ class MainActivity : ComponentActivity() {
                             onNavigateToRegister = { currentView = Views.Registration },
                             onLoginSuccess = { currentView = Views.Profile }
                         )
-                        Views.Registration -> Registration { currentView = Views.Login }
+                        Views.Registration -> Registration(
+                            onNavigateToLogin = { currentView = Views.Login },
+                            onRegisterSuccess = { currentView = Views.Profile }
+                        )
+                        Views.MyBookClubs -> MyBookClubs(
+                            onBrowsePublicClubs = { /* TODO: Browse public clubs screen */ },
+                            onCreateClub = { /* TODO: Create club screen */ },
+                            onTabSelected = { currentView = tabToView(it) },
+                            onClubClick = { currentView = Views.ReadingRats }
+                        )
                         Views.Chat -> TabPlaceholderScreen(
                             label = "Chat",
                             currentTab = BottomTab.Chat,
@@ -73,7 +84,19 @@ class MainActivity : ComponentActivity() {
                             onTabSelected = { currentView = tabToView(it) }
                         )
                         Views.Search -> Search(onTabSelected = { currentView = tabToView(it) })
-                        Views.Profile -> Profile(onTabSelected = { currentView = tabToView(it) })
+                        Views.Profile -> Profile(
+                            onTabSelected = { currentView = tabToView(it) },
+                            onClubClick = { currentView = Views.ReadingRats }
+                        )
+                        Views.ReadingRats -> BookClubDetail(
+                            onBack = { currentView = Views.MyBookClubs },
+                            onChapterComments = { currentView = Views.ChapterComments },
+                            onTabSelected = { currentView = tabToView(it) }
+                        )
+                        Views.ChapterComments -> ChapterComments(
+                            onBack = { currentView = Views.ReadingRats },
+                            onTabSelected = { currentView = tabToView(it) }
+                        )
                     }
                 }
             }

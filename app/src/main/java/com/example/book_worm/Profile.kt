@@ -1,6 +1,7 @@
 package com.example.book_worm
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,9 +36,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp as dpUnit
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -55,7 +63,7 @@ private val WormPink = Color(0xFFE98EA8)
 private val ChallengeButtonGreen = Color(0xFF93B437)
 
 @Composable
-fun Profile(onTabSelected: (BottomTab) -> Unit) {
+fun Profile(onTabSelected: (BottomTab) -> Unit, onClubClick: () -> Unit = {}) {
     var bioText by remember {
         mutableStateOf("Welcome to my page.\nFavourite genres: fantasy, classics, mystery.")
     }
@@ -207,7 +215,8 @@ fun Profile(onTabSelected: (BottomTab) -> Unit) {
                 BookClubsSection(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp)
+                        .padding(horizontal = 24.dp),
+                    onClubClick = onClubClick
                 )
 
                 Spacer(modifier = Modifier.height(28.dp))
@@ -217,7 +226,7 @@ fun Profile(onTabSelected: (BottomTab) -> Unit) {
 }
 
 @Composable
-private fun BookClubsSection(modifier: Modifier = Modifier) {
+private fun BookClubsSection(modifier: Modifier = Modifier, onClubClick: () -> Unit = {}) {
     Column(modifier = modifier) {
         Text(
             text = "Book Clubs",
@@ -233,8 +242,9 @@ private fun BookClubsSection(modifier: Modifier = Modifier) {
 
         ClubCard(
             clubName = "Reading Rats",
-            members = 5,
-            totalBooksRead = 23
+            members = 10,
+            totalBooksRead = 1,
+            onClick = onClubClick
         )
     }
 }
@@ -243,27 +253,30 @@ private fun BookClubsSection(modifier: Modifier = Modifier) {
 private fun ClubCard(
     clubName: String,
     members: Int,
-    totalBooksRead: Int
+    totalBooksRead: Int,
+    onClick: () -> Unit = {}
 ) {
-    Card(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(elevation = 10.dp, shape = RoundedCornerShape(24.dp)),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = HeaderGreen),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(20.dp),
+        color = HeaderGreen,
+        tonalElevation = 4.dp,
+        shadowElevation = 4.dp,
+        border = androidx.compose.foundation.BorderStroke(1.dp, DarkGreen.copy(alpha = 0.4f))
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Icon box
             Box(
                 modifier = Modifier
-                    .size(74.dp)
-                    .clip(RoundedCornerShape(22.dp))
+                    .size(64.dp)
+                    .clip(RoundedCornerShape(14.dp))
                     .background(Color.White),
                 contentAlignment = Alignment.Center
             ) {
@@ -271,66 +284,75 @@ private fun ClubCard(
                     painter = painterResource(id = R.drawable.reading_rats_icon),
                     contentDescription = "Reading Rats icon",
                     contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(58.dp)
+                    modifier = Modifier.size(48.dp)
                 )
             }
 
+            Spacer(modifier = Modifier.width(10.dp))
+
+            // Middle: club name + currently reading
             Column(
-                modifier = Modifier.width(96.dp),
+                modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = clubName,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontFamily = sulphur_point,
-                        fontSize = 24.sp,
-                        lineHeight = 24.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = DarkGreen
-                    )
+                    fontFamily = sulphur_point,
+                    fontSize = 18.sp,
+                    lineHeight = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 0.5.sp,
+                    color = DarkGreen,
+                    maxLines = 1
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "To Kill a Mockingbird",
+                    fontFamily = sulphur_point,
+                    fontSize = 17.sp,
+                    lineHeight = 19.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = DarkGreen.copy(alpha = 0.6f),
+                    maxLines = 2
                 )
             }
 
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // Right: stats right-aligned, no fixed width
             Column(
-                modifier = Modifier.width(180.dp),
                 horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = "$members members",
+                    fontFamily = sulphur_point,
+                    fontSize = 18.sp,
+                    lineHeight = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = DarkGreen,
                     textAlign = TextAlign.End,
-                    maxLines = 1,
-                    softWrap = false,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontFamily = sulphur_point,
-                        fontSize = 20.sp,
-                        lineHeight = 20.sp,
-                        color = Color(0xFF404040)
-                    )
+                    maxLines = 1
                 )
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "$totalBooksRead books",
+                    text = "$totalBooksRead book(s)",
+                    fontFamily = sulphur_point,
+                    fontSize = 15.sp,
+                    lineHeight = 17.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = DarkGreen,
                     textAlign = TextAlign.End,
-                    maxLines = 1,
-                    softWrap = false,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontFamily = sulphur_point,
-                        fontSize = 20.sp,
-                        lineHeight = 20.sp,
-                        color = Color(0xFF404040)
-                    )
+                    maxLines = 1
                 )
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "Active since 02/03/2024",
-                    textAlign = TextAlign.End,
-                    maxLines = 1,
-                    softWrap = false,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontFamily = sulphur_point,
-                        fontSize = 14.sp,
-                        lineHeight = 14.sp,
-                        color = Color(0xFF404040)
-                    )
+                    text = "Active since 29/03/2026",
+                    fontFamily = sulphur_point,
+                    fontSize = 11.sp,
+                    lineHeight = 13.sp,
+                    color = DarkGreen,
+                    textAlign = TextAlign.End
                 )
             }
         }
@@ -347,7 +369,7 @@ private fun ReadingChallengeSection(
 
     BoxWithConstraints(modifier = modifier) {
         val columnGap = 8.dp
-        val leftWidth = maxWidth * 0.27f
+        val leftWidth = maxWidth * 0.28f
         val centerWidth = maxWidth - leftWidth - columnGap
         val editButtonWidth = 86.dp
         val barWidth = centerWidth - editButtonWidth - 8.dp
@@ -410,7 +432,9 @@ private fun ReadingChallengeSection(
                 ) {
                     WormProgressBar(
                         progress = progress,
-                        modifier = Modifier.width(barWidth)
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(22.dp)
                     )
                     Spacer(modifier = Modifier.width(editButtonWidth))
                 }
@@ -422,7 +446,7 @@ private fun ReadingChallengeSection(
                     Text(
                         text = "$completedBooks/$totalBooks\nBooks",
                         textAlign = TextAlign.End,
-                        modifier = Modifier.width(barWidth),
+                        modifier = Modifier.weight(1f),
                         style = MaterialTheme.typography.labelMedium.copy(
                             fontFamily = sulphur_point,
                             fontSize = 17.sp,
@@ -458,54 +482,7 @@ private fun ReadingChallengeSection(
     }
 }
 
-@Composable
-private fun WormProgressBar(progress: Float, modifier: Modifier = Modifier) {
-    val segments = 10
-    val filledSegments = (segments * progress).toInt().coerceAtLeast(1)
-
-    Box(
-        modifier = modifier
-            .height(22.dp)
-            .clip(RoundedCornerShape(999.dp))
-            .background(Color.White)
-            .padding(horizontal = 7.dp, vertical = 5.dp),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(3.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            repeat(filledSegments) { index ->
-                val isHead = index == filledSegments - 1
-
-                Box(
-                    modifier = Modifier
-                        .size(if (isHead) 10.dp else 8.dp)
-                        .clip(CircleShape)
-                        .background(WormPink),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (isHead) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Box(
-                                modifier = Modifier
-                                    .size(1.6.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFF3E3E3E))
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .size(1.6.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFF3E3E3E))
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+// WormProgressBar is defined in WormProgressBar.kt
 
 @Composable
 private fun RabbitAvatar() {
