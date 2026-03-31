@@ -7,10 +7,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -19,6 +22,7 @@ import com.example.book_worm.API.NetworkClient
 import com.example.book_worm.API.TokenManager
 import com.example.book_worm.DTOs.Credentials
 import com.example.book_worm.ui.theme.BWTextField
+import com.example.book_worm.ui.theme.DarkGreen
 import com.example.book_worm.ui.theme.Icons
 import com.example.book_worm.ui.theme.MajorButton
 import com.example.book_worm.ui.theme.MinorButton
@@ -28,6 +32,7 @@ import kotlinx.coroutines.launch
 fun Registration(onNavigateToLogin: () -> Unit, onRegisterSuccess: () -> Unit = {}) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    var isLoading by remember { mutableStateOf(false) }
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -95,6 +100,7 @@ fun Registration(onNavigateToLogin: () -> Unit, onRegisterSuccess: () -> Unit = 
                             }
 
                             if (emailError.isEmpty() && passwordError.isEmpty()) {
+                                isLoading = true
                                 scope.launch {
                                     val request = Credentials(trimmedEmail, password, username.ifEmpty { null })
                                     val response = NetworkClient.authentication.register(request)
@@ -124,6 +130,7 @@ fun Registration(onNavigateToLogin: () -> Unit, onRegisterSuccess: () -> Unit = 
                                                 emailError = "Server Error: ${response.code()}"
                                             }
                                         }
+                                        isLoading = false
                                     }
                                 }
                             }
@@ -139,6 +146,21 @@ fun Registration(onNavigateToLogin: () -> Unit, onRegisterSuccess: () -> Unit = 
                         textAlign = TextAlign.Center
                     )
                 }
+            }
+        }
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f))
+                    .pointerInput(Unit) {},
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier=Modifier.size(64.dp),
+                    color=DarkGreen,
+                    strokeWidth=6.dp
+                )
             }
         }
     }
