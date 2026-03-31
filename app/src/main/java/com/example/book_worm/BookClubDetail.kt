@@ -50,20 +50,29 @@ fun BookClubDetail(
     val clubId = "00000000-0000-0000-0000-000000000001"
     val goalPages = 3300
 
-    var currentPages by remember { mutableStateOf(10) }
+    var currentPages by remember { mutableStateOf(0) }
+    var totalPages by remember { mutableStateOf(0) }       // combined pages of all members
     var showUpdateDialog by remember { mutableStateOf(false) }
     var isUpdating by remember { mutableStateOf(false) }
     var updateError by remember { mutableStateOf("") }
 
+    suspend fun refreshProgress(token: String) {
+        // My own progress
+        try {
+            val r = NetworkClient.bookClub.getClubProgress("Bearer $token", clubId)
+            if (r.isSuccessful) r.body()?.let { currentPages = it.currentPages }
+        } catch (_: Exception) {}
+        // All members' combined progress
+        try {
+            val r = NetworkClient.bookClub.getMembersProgress("Bearer $token", clubId)
+            if (r.isSuccessful) totalPages = r.body()?.sumOf { it.currentPages } ?: currentPages
+        } catch (_: Exception) { totalPages = currentPages }
+    }
+
     // Fetch live progress from backend on load
     LaunchedEffect(Unit) {
         val token = UserContext.token ?: return@LaunchedEffect
-        try {
-            val response = NetworkClient.bookClub.getClubProgress("Bearer $token", clubId)
-            if (response.isSuccessful) {
-                response.body()?.let { currentPages = it.currentPages }
-            }
-        } catch (_: Exception) { /* keep hardcoded value */ }
+        refreshProgress(token)
     }
     Box(modifier = Modifier.fillMaxSize().background(LightGreen)) {
         Scaffold(
@@ -236,9 +245,9 @@ fun BookClubDetail(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // WORM PROGRESS BAR
+                    // WORM PROGRESS BAR — shows combined pages of all members
                     WormProgressBar(
-                        progress = currentPages.toFloat() / goalPages.toFloat(),
+                        progress = (totalPages.toFloat() / goalPages.toFloat()).coerceIn(0f, 1f),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(22.dp)
@@ -246,8 +255,6 @@ fun BookClubDetail(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // UPDATE PROGRESS button on left, pages count on right
-                    // both within the same horizontal bounds as the worm bar
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -274,7 +281,7 @@ fun BookClubDetail(
                         }
 
                         Text(
-                            text = "$currentPages/$goalPages\npages",
+                            text = "$totalPages/$goalPages\npages",
                             fontFamily = sulphur_point,
                             fontSize = 16.sp,
                             textAlign = TextAlign.End,
@@ -361,15 +368,14 @@ fun BookClubDetail(
                             if (response.isSuccessful) {
                                 currentPages = response.body()?.currentPages ?: newPages
                             } else {
-                                // API not ready yet — update locally so UI still works
                                 currentPages = newPages
                             }
+                            // Refresh the combined total for the worm bar
+                            refreshProgress(token)
                         } catch (_: Exception) {
-                            // No backend yet — update locally
                             currentPages = newPages
                         }
                     } else {
-                        // Not logged in — still update locally for demo
                         currentPages = newPages
                     }
                     isUpdating = false

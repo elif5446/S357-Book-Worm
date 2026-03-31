@@ -64,7 +64,7 @@ private val WormPink = Color(0xFFE98EA8)
 private val ChallengeButtonGreen = Color(0xFF93B437)
 
 @Composable
-fun Profile(onTabSelected: (BottomTab) -> Unit, onClubClick: () -> Unit = {}) {
+fun Profile(onTabSelected: (BottomTab) -> Unit, onClubClick: () -> Unit = {}, onLogout: () -> Unit = {}) {
     var bioText by remember {
         mutableStateOf("Welcome to my page.\nFavourite genres: fantasy, classics, mystery.")
     }
@@ -222,6 +222,24 @@ fun Profile(onTabSelected: (BottomTab) -> Unit, onClubClick: () -> Unit = {}) {
                 )
 
                 Spacer(modifier = Modifier.height(28.dp))
+
+                // Subtle log out button
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Log out",
+                        modifier = Modifier.clickable { onLogout() },
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontFamily = sulphur_point,
+                            fontSize = 14.sp,
+                            color = DarkGreen.copy(alpha = 0.45f)
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
             }
         }
     }
@@ -390,10 +408,10 @@ private fun ReadingChallengeSection(
                     softWrap = false,
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontFamily = sulphur_point,
-                        fontSize = 22.sp,
-                        lineHeight = 22.sp,
+                        fontSize = 21.sp,
+                        lineHeight = 24.sp,
                         fontWeight = FontWeight.Medium,
-                        color = DarkGreen
+                        color = Color.Black
                     )
                 )
                 Text(
@@ -403,9 +421,9 @@ private fun ReadingChallengeSection(
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontFamily = sulphur_point,
                         fontSize = 22.sp,
-                        lineHeight = 22.sp,
+                        lineHeight = 24.sp,
                         fontWeight = FontWeight.Medium,
-                        color = DarkGreen
+                        color = Color.Black
                     )
                 )
                 Text(
@@ -415,9 +433,9 @@ private fun ReadingChallengeSection(
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontFamily = sulphur_point,
                         fontSize = 22.sp,
-                        lineHeight = 22.sp,
+                        lineHeight = 24.sp,
                         fontWeight = FontWeight.Medium,
-                        color = DarkGreen
+                        color = Color.Black
                     )
                 )
             }

@@ -1,17 +1,12 @@
 package com.example.book_worm.API
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import com.example.book_worm.BuildConfig
 import androidx.core.content.edit
 import com.example.book_worm.DTOs.User
 import java.util.UUID
 
 object NetworkClient {
-    private val BASE_URL = if (BuildConfig.DEBUG) {
-        "http://10.0.2.2:8000/" // Running Locally
-    } else {
-        "https://book-worm-884513973712.northamerica-northeast1.run.app/" // Running in Production
-    }
+    private val BASE_URL = "https://book-worm-884513973712.northamerica-northeast1.run.app/"
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())

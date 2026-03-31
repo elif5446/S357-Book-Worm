@@ -18,15 +18,19 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.FilterAlt
+import androidx.compose.material.icons.outlined.ExpandMore
+import androidx.compose.material.icons.rounded.ChevronLeft
 import androidx.compose.material.icons.rounded.FilterAlt
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -50,13 +54,17 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.book_worm.ui.theme.DarkGreen
+import com.example.book_worm.ui.theme.Green
 import com.example.book_worm.ui.theme.LightestGreen
 import com.example.book_worm.ui.theme.sulphur_point
 
-private val SearchHeaderGreen = Color(0xFFBAD76B)
+private val SearchHeaderGreen = Green
 private val SearchBodyGreen = Color(0xFFE3F0AF)
 
 @Composable
@@ -65,6 +73,7 @@ fun Search(onTabSelected: (BottomTab) -> Unit) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     var showDetails by remember { mutableStateOf(false) }
+    val hasMockingbirdResult = searchQuery.contains("mocking", ignoreCase = true)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -82,7 +91,6 @@ fun Search(onTabSelected: (BottomTab) -> Unit) {
                 .padding(innerPadding)
                 .background(SearchBodyGreen)
         ) {
-            val headerHeight = maxHeight * 0.14f
             val headerInnerWidth = maxWidth - 36.dp
 
             Column(modifier = Modifier.fillMaxSize()) {
@@ -92,32 +100,35 @@ fun Search(onTabSelected: (BottomTab) -> Unit) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(headerHeight)
                         .background(SearchHeaderGreen)
-                        .padding(horizontal = 18.dp),
+                        .padding(start = 18.dp, end = 18.dp, top = 70.dp, bottom = 20.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     if (showDetails) {
                         Box(
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 12.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = "To Kill a Mockingbird",
                                 style = MaterialTheme.typography.labelMedium.copy(
                                     fontFamily = sulphur_point,
-                                    fontSize = 24.sp,
+                                    fontSize = 28.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF3C5104)
                                 )
                             )
                         }
                         Icon(
-                            imageVector = Icons.Filled.ArrowBack,
+                            imageVector = Icons.Rounded.ChevronLeft,
                             contentDescription = "Back",
                             tint = Color(0xFF3C5104),
                             modifier = Modifier
                                 .align(Alignment.CenterStart)
+                                .size(48.dp)
+                                .padding(start = 8.dp)
                                 .clickable { showDetails = false }
                         )
                     } else {
@@ -144,7 +155,7 @@ fun Search(onTabSelected: (BottomTab) -> Unit) {
                                 Icon(
                                     imageVector = Icons.Rounded.Search,
                                     contentDescription = "Search",
-                                    tint = DarkGreen
+                                    tint = Color(0xFF610E0F)
                                 )
                                 BasicTextField(
                                     value = searchQuery,
@@ -158,6 +169,7 @@ fun Search(onTabSelected: (BottomTab) -> Unit) {
                                     textStyle = MaterialTheme.typography.labelMedium.copy(
                                         fontFamily = sulphur_point,
                                         fontSize = 20.sp,
+                                        letterSpacing = 0.sp,
                                         color = DarkGreen
                                     ),
                                     singleLine = true,
@@ -168,6 +180,7 @@ fun Search(onTabSelected: (BottomTab) -> Unit) {
                                                 style = MaterialTheme.typography.labelMedium.copy(
                                                     fontFamily = sulphur_point,
                                                     fontSize = 20.sp,
+                                                    letterSpacing = (0).sp,
                                                     color = Color(0xFF3C5104)
                                                 )
                                             )
@@ -185,7 +198,7 @@ fun Search(onTabSelected: (BottomTab) -> Unit) {
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.FilterAlt,
+                                    imageVector = Icons.Outlined.FilterAlt,
                                     contentDescription = "Filter",
                                     tint = DarkGreen
                                 )
@@ -194,28 +207,30 @@ fun Search(onTabSelected: (BottomTab) -> Unit) {
                     }
                 }
 
-                Spacer(modifier = Modifier.height(if (showDetails) 8.dp else 20.dp))
+                Spacer(modifier = Modifier.height(if (showDetails) 4.dp else 20.dp))
 
                 if (!showDetails) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Search for a book\nor an author!",
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.labelMedium.copy(
-                                fontFamily = sulphur_point,
-                                fontSize = 22.sp,
-                                lineHeight = 24.sp,
-                                color = Color(0xFF3C5104)
+                    if (!hasMockingbirdResult) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Search for a book\nor an author!",
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontFamily = sulphur_point,
+                                    fontSize = 22.sp,
+                                    lineHeight = 24.sp,
+                                    color = Color(0xFF3C5104)
+                                )
                             )
-                        )
+                        }
                     }
-                    if (searchQuery.contains("mocking", true)) {
-                        Spacer(modifier = Modifier.height(20.dp))
+                    if (hasMockingbirdResult) {
+                        Spacer(modifier = Modifier.height(4.dp))
                         SearchResultCard { showDetails = true }
                     }
                 } else {
@@ -228,21 +243,22 @@ fun Search(onTabSelected: (BottomTab) -> Unit) {
 
 @Composable
 private fun SearchResultCard(onClick: () -> Unit) {
-    Box(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(horizontal = 20.dp)
             .clickable { onClick() },
-        contentAlignment = Alignment.Center
+        shape = RoundedCornerShape(20.dp),
+        color = Green,
+        shadowElevation = 4.dp,
+        border = androidx.compose.foundation.BorderStroke(1.dp, DarkGreen.copy(alpha = 0.3f))
     ) {
         Row(
             modifier = Modifier
-                .width(384.dp)
-                .height(127.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFBAD76B))
+                .fillMaxWidth()
                 .padding(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Box(
                 modifier = Modifier
@@ -261,7 +277,9 @@ private fun SearchResultCard(onClick: () -> Unit) {
             }
 
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(110.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
@@ -325,15 +343,15 @@ private fun BookDetailContent() {
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(18.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
                 Icon(
                     painter = painterResource(id = R.drawable.to_kill_a_mockingbird),
                     contentDescription = "To Kill a Mockingbird",
                     tint = Color.Unspecified,
                 modifier = Modifier
-                    .width(169.dp)
-                    .height(257.dp)
+                    .width(176.dp)
+                    .height(268.dp)
             )
             Column(
                 modifier = Modifier.weight(1f),
@@ -423,6 +441,7 @@ private fun BookDetailContent() {
 private fun BookDetailButtons() {
     val options = listOf("Want to read", "Currently reading", "Read", "Favourites", "Owned", "Recs")
     var expanded by remember { mutableStateOf(false) }
+    var showReviewDialog by remember { mutableStateOf(false) }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -439,9 +458,11 @@ private fun BookDetailButtons() {
             contentAlignment = Alignment.CenterStart
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 18.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = "ADD TO SHELF",
@@ -453,18 +474,21 @@ private fun BookDetailButtons() {
                     )
                 )
                 Icon(
-                    imageVector = Icons.Rounded.ExpandMore,
+                    imageVector = Icons.Outlined.ExpandMore,
                     contentDescription = "Dropdown",
-                    modifier = Modifier.size(72.dp),
+                    modifier = Modifier.size(28.dp),
                     tint = Color(0xFF3C5104)
                 )
             }
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
+                offset = DpOffset(x = 0.dp, y = 8.dp),
+                containerColor = Color(0xFFF4FFD5),
+                shape = RoundedCornerShape(19.dp),
                 modifier = Modifier.width(280.dp)
             ) {
-                options.forEach { item ->
+                options.forEachIndexed { index, item ->
                     DropdownMenuItem(
                         onClick = { expanded = false },
                         text = {
@@ -472,12 +496,18 @@ private fun BookDetailButtons() {
                                 text = item,
                                 style = MaterialTheme.typography.labelMedium.copy(
                                     fontFamily = sulphur_point,
-                                    fontSize = 20.sp,
+                                    fontSize = 22.sp,
                                     color = Color(0xFF3C5104)
                                 )
                             )
                         }
                     )
+                    if (index != options.lastIndex) {
+                        HorizontalDivider(
+                            color = Color(0xFF91A78B),
+                            thickness = 1.dp
+                        )
+                    }
                 }
             }
         }
@@ -488,7 +518,8 @@ private fun BookDetailButtons() {
                 .width(129.dp)
                 .height(36.dp)
                 .clip(RoundedCornerShape(18.dp))
-                .background(Color(0xFFF4FFD5)),
+                .background(Color(0xFFF4FFD5))
+                .clickable { showReviewDialog = true },
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -500,6 +531,55 @@ private fun BookDetailButtons() {
                     letterSpacing = 0.01.em
                 )
             )
+        }
+    }
+
+    if (showReviewDialog) {
+        Dialog(
+            onDismissRequest = { showReviewDialog = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFF7F8962).copy(alpha = 0.55f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(306.dp)
+                        .height(295.dp)
+                        .clip(RoundedCornerShape(19.dp))
+                        .background(Color(0xFFF4FFD5))
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 18.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Review of",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontFamily = sulphur_point,
+                                fontSize = 22.sp,
+                                color = Color(0xFF3C5104)
+                            )
+                        )
+                        Text(
+                            text = "To kill a mocking bird",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontFamily = sulphur_point,
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF3C5104)
+                            )
+                        )
+                    }
+                }
+            }
         }
     }
 }

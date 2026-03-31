@@ -72,10 +72,9 @@ class MainActivity : ComponentActivity() {
                             onTabSelected = { currentView = tabToView(it) },
                             onClubClick = { currentView = Views.ReadingRats }
                         )
-                        Views.Chat -> TabPlaceholderScreen(
-                            label = "Chat",
-                            currentTab = BottomTab.Chat,
-                            onTabSelected = { currentView = tabToView(it) }
+                        Views.Chat -> Chat(
+                            onTabSelected = { currentView = tabToView(it) },
+                            onNavigateToSearch = { currentView = Views.Search }
                         )
                         Views.Shelves -> Shelves(onTabSelected = { currentView = tabToView(it) })
                         Views.BookClub -> TabPlaceholderScreen(
@@ -86,7 +85,13 @@ class MainActivity : ComponentActivity() {
                         Views.Search -> Search(onTabSelected = { currentView = tabToView(it) })
                         Views.Profile -> Profile(
                             onTabSelected = { currentView = tabToView(it) },
-                            onClubClick = { currentView = Views.ReadingRats }
+                            onClubClick = { currentView = Views.ReadingRats },
+                            onLogout = {
+                                TokenManager.clearToken(context)
+                                UserContext.token = null
+                                UserContext.user = null
+                                currentView = Views.Login
+                            }
                         )
                         Views.ReadingRats -> BookClubDetail(
                             onBack = { currentView = Views.MyBookClubs },
