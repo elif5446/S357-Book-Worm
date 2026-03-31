@@ -56,7 +56,10 @@ fun MyBookClubs(
                     val response = NetworkClient.bookClub.getMyBookClubs("Bearer $token")
                     if (response.isSuccessful) {
                         val apiClubs = response.body() ?: emptyList()
-                        bookClubs = listOf(hardcodedClub) + apiClubs
+                        // Merge: keep hardcoded club, add any API clubs that aren't already in the list
+                        val merged = (listOf(hardcodedClub) + apiClubs)
+                            .distinctBy { it.id }
+                        bookClubs = merged
                     }
                     // if API fails, keep showing the hardcoded club silently
                 } catch (e: Exception) {
