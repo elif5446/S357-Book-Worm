@@ -231,8 +231,8 @@ def post_chapter_comment(club_id: str, body: PostCommentRequest, authorization: 
         raise HTTPException(status_code=401, detail="Invalid token")
     db = get_supabase_db()
     try:
-        profile = db.table('Users').select("username").eq("ID", user_id).single().execute().data
-        username = profile.get('username') if profile else "Anonymous"
+        rows = db.table('Users').select("username").eq("ID", user_id).limit(1).execute().data
+        username = rows[0].get('username') if rows else "Anonymous"
     except Exception:
         username = "Anonymous"
     try:
@@ -425,6 +425,7 @@ def get_all_members_progress(club_id: str, authorization: Optional[str] = Header
         return result
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to fetch member progress: {str(e)}")
+
 
 
 
