@@ -25,7 +25,7 @@ import com.example.book_worm.ui.theme.*
 import kotlinx.coroutines.launch
 
 @Composable
-fun Chat(onTabSelected: (BottomTab) -> Unit = {}) {
+fun Chat(onTabSelected: (BottomTab) -> Unit = {}, onNavigateToSearch: () -> Unit = {}) {
     val scope = rememberCoroutineScope()
     val clubId = "00000000-0000-0000-0000-000000000001"
     val bookTotalPages = 330  // To Kill a Mockingbird
@@ -197,7 +197,7 @@ fun Chat(onTabSelected: (BottomTab) -> Unit = {}) {
                                 Box(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .clickable { showUpdateDialog = true },
+                                        .clickable { onNavigateToSearch() },
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
@@ -251,6 +251,8 @@ fun Chat(onTabSelected: (BottomTab) -> Unit = {}) {
         )
     }
 }
+
+
 
 
 

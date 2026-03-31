@@ -73,7 +73,8 @@ class MainActivity : ComponentActivity() {
                             onClubClick = { currentView = Views.ReadingRats }
                         )
                         Views.Chat -> Chat(
-                            onTabSelected = { currentView = tabToView(it) }
+                            onTabSelected = { currentView = tabToView(it) },
+                            onNavigateToSearch = { currentView = Views.Search }
                         )
                         Views.Shelves -> Shelves(onTabSelected = { currentView = tabToView(it) })
                         Views.BookClub -> TabPlaceholderScreen(
