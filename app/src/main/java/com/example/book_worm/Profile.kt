@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -89,7 +90,7 @@ fun Profile(onTabSelected: (BottomTab) -> Unit, onClubClick: () -> Unit = {}) {
                 .padding(innerPadding)
                 .background(BodyGreen)
         ) {
-            val headerHeight = maxHeight * 0.45f
+            val headerHeight = maxHeight * 0.42f
 
             Column(
                 modifier = Modifier
@@ -169,9 +170,10 @@ fun Profile(onTabSelected: (BottomTab) -> Unit, onClubClick: () -> Unit = {}) {
                         Button(
                             onClick = { },
                             shape = RoundedCornerShape(999.dp),
+                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = SoftCardGreen,
-                                contentColor = Color(0xFF424242)
+                                contentColor = Color(0xFF3C5104)
                             ),
                             elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
                         ) {
@@ -179,9 +181,9 @@ fun Profile(onTabSelected: (BottomTab) -> Unit, onClubClick: () -> Unit = {}) {
                                 text = "EDIT PROFILE",
                                 style = MaterialTheme.typography.labelLarge.copy(
                                     fontFamily = sulphur_point,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    letterSpacing = 0.8.sp
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = Color(0xFF3C5104)
                                 )
                             )
                         }
@@ -388,8 +390,8 @@ private fun ReadingChallengeSection(
                     softWrap = false,
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontFamily = sulphur_point,
-                        fontSize = 19.sp,
-                        lineHeight = 19.sp,
+                        fontSize = 22.sp,
+                        lineHeight = 22.sp,
                         fontWeight = FontWeight.Medium,
                         color = DarkGreen
                     )
@@ -400,8 +402,8 @@ private fun ReadingChallengeSection(
                     softWrap = false,
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontFamily = sulphur_point,
-                        fontSize = 19.sp,
-                        lineHeight = 19.sp,
+                        fontSize = 22.sp,
+                        lineHeight = 22.sp,
                         fontWeight = FontWeight.Medium,
                         color = DarkGreen
                     )
@@ -412,8 +414,8 @@ private fun ReadingChallengeSection(
                     softWrap = false,
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontFamily = sulphur_point,
-                        fontSize = 19.sp,
-                        lineHeight = 19.sp,
+                        fontSize = 22.sp,
+                        lineHeight = 22.sp,
                         fontWeight = FontWeight.Medium,
                         color = DarkGreen
                     )
@@ -515,7 +517,7 @@ private fun StatsSection(modifier: Modifier = Modifier) {
     BoxWithConstraints(modifier = modifier) {
         val horizontalInset = 2.dp
         val separatorWidth = 1.dp
-        val linePadding = 14.dp
+        val linePadding = 16.dp
         val totalGapsWidth = separatorWidth * 2 + linePadding * 4
         val cardShrink = 6.dp
         val baseWidth = (maxWidth - (horizontalInset * 2) - totalGapsWidth) / 3
