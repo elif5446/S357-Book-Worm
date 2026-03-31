@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,12 +18,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.window.Popup
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import com.example.book_worm.API.NetworkClient
 import com.example.book_worm.DTOs.ChapterComment
 import com.example.book_worm.DTOs.PostCommentRequest
@@ -346,11 +352,11 @@ fun ChapterComments(
                 }
 
                 // COMMENTS LIST + WRITE AREA
-                // This column fills all remaining space and puts WRITE COMMENT at bottom
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 16.dp)
+                        .imePadding()
                 ) {
                     // Comments list — takes all available space above the button
                     Box(
@@ -398,6 +404,10 @@ fun ChapterComments(
 
                     //Write area OR Write Comment button
                     if (showWriteArea) {
+                        val focusRequester = remember { FocusRequester() }
+                        LaunchedEffect(Unit) {
+                            focusRequester.requestFocus()
+                        }
                         Surface(
                             shape = RoundedCornerShape(14.dp),
                             color = chipBg,
@@ -416,7 +426,9 @@ fun ChapterComments(
                                             fontSize = 14.sp
                                         )
                                     },
-                                    modifier = Modifier.fillMaxWidth(),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .focusRequester(focusRequester),
                                     colors = TextFieldDefaults.colors(
                                         focusedContainerColor = Color.Transparent,
                                         unfocusedContainerColor = Color.Transparent,
