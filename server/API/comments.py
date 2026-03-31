@@ -11,7 +11,14 @@ router = APIRouter()
 
 def get_supabase() -> Client:
     url = os.environ.get('SUPABASE_URL')
-    key = os.environ.get('SUPABASE_API_KEY')
+    key = os.environ.get('SUPABASE_API_KEY')  # anon key for token validation
+    if not url or not key:
+        raise HTTPException(status_code=500, detail="Supabase credentials missing.")
+    return create_client(url, key)
+
+def get_supabase_db() -> Client:
+    url = os.environ.get('SUPABASE_URL')
+    key = os.environ.get('SUPABASE_SERVICE_KEY') or os.environ.get('SUPABASE_API_KEY')
     if not url or not key:
         raise HTTPException(status_code=500, detail="Supabase credentials missing.")
     return create_client(url, key)
@@ -32,9 +39,9 @@ class Comment(BaseModel):
 
 @router.get("/comments/{chapter}")
 def get_comments(chapter: int):
-    supabase = get_supabase()
+    db = get_supabase_db()
     try:
-        response = supabase.table('Comments').select("*").eq('chapter', chapter).execute()
+        response = db.table('Comments').select("*").eq('chapter', chapter).execute()
         return response.data
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to fetch comments: {str(e)}")
@@ -43,6 +50,7 @@ def get_comments(chapter: int):
 @router.post("/comments/")
 def post_comment(comment: CommentCreate, authorization: Optional[str] = Header(None)):
     supabase = get_supabase()
+    db = get_supabase_db()
     try:
         token = None
         if authorization and authorization.startswith("Bearer "):
@@ -54,7 +62,7 @@ def post_comment(comment: CommentCreate, authorization: Optional[str] = Header(N
             user_response = supabase.auth.get_user(token)
             if user_response and user_response.user:
                 user_id = str(user_response.user.id)
-                profile = supabase.table('Users').select("username").eq("ID", user_id).single().execute().data
+                profile = db.table('Users').select("username").eq("ID", user_id).single().execute().data
                 if profile:
                     username = profile.get('username')
 
@@ -67,7 +75,7 @@ def post_comment(comment: CommentCreate, authorization: Optional[str] = Header(N
         if username:
             data["username"] = username
 
-        response = supabase.table('Comments').insert(data).execute()
+        response = db.table('Comments').insert(data).execute()
         return response.data
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to post comment: {str(e)}")
@@ -75,10 +83,13 @@ def post_comment(comment: CommentCreate, authorization: Optional[str] = Header(N
 
 @router.delete("/comments/{comment_id}")
 def delete_comment(comment_id: int, authorization: Optional[str] = Header(None)):
-    supabase = get_supabase()
+    db = get_supabase_db()
     try:
-        response = supabase.table('Comments').delete().eq('id', comment_id).execute()
+        response = db.table('Comments').delete().eq('id', comment_id).execute()
         return {"detail": "Comment deleted"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to delete comment: {str(e)}")
+
+
+
 

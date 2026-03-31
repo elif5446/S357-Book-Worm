@@ -6,16 +6,25 @@ from dotenv import load_dotenv
 
 load_dotenv()
 router = APIRouter()
+
 def get_supabase() -> Client:
     url = os.environ.get('SUPABASE_URL')
-    key = os.environ.get('SUPABASE_API_KEY')
+    key = os.environ.get('SUPABASE_API_KEY')  # anon key for auth operations
+    if not url or not key:
+        raise HTTPException(status_code=500, detail="Supabase credentials missing.")
+    return create_client(url, key)
+
+def get_supabase_db() -> Client:
+    url = os.environ.get('SUPABASE_URL')
+    key = os.environ.get('SUPABASE_SERVICE_KEY') or os.environ.get('SUPABASE_API_KEY')
     if not url or not key:
         raise HTTPException(status_code=500, detail="Supabase credentials missing.")
     return create_client(url, key)
 
 @router.post("/register/")
 def register(credentials: Credentials):
-    supabase = get_supabase()
+    supabase = get_supabase()       # anon key — for auth.sign_up
+    db = get_supabase_db()          # service key — for Users table insert
 
     try:
         response = supabase.auth.sign_up({
@@ -29,7 +38,7 @@ def register(credentials: Credentials):
         })
 
         if response.user:
-            supabase.table('Users').insert({
+            db.table('Users').insert({
                 'ID': response.user.id,
                 'email': response.user.email,
                 'username': response.user.user_metadata.get("full_name")
@@ -41,7 +50,7 @@ def register(credentials: Credentials):
                 username = response.user.user_metadata.get("full_name")
             )
             return Account(token = response.session.access_token, user = user)
-    
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Registration failed: {str(e)}")
 
@@ -49,7 +58,8 @@ def register(credentials: Credentials):
 
 @router.post("/login/")
 def login(credentials: Credentials):
-    supabase = get_supabase()
+    supabase = get_supabase()       # anon key — for auth.sign_in_with_password
+    db = get_supabase_db()          # service key — for Users table select
 
     try:
         response = supabase.auth.sign_in_with_password({
@@ -58,7 +68,7 @@ def login(credentials: Credentials):
         })
 
         if response.user:
-            profile = supabase.table('Users').select("*").eq("ID", response.user.id).single().execute().data
+            profile = db.table('Users').select("*").eq("ID", response.user.id).single().execute().data
             if profile:
                 profile_username = profile.get('username') or profile.get('usernamen')
                 user = User(
