@@ -68,16 +68,31 @@ def login(credentials: Credentials):
         })
 
         if response.user:
-            profile = db.table('Users').select("*").eq("ID", response.user.id).single().execute().data
-            if profile:
+            # Use limit(1) instead of .single() so it never crashes on 0 rows
+            rows = db.table('Users').select("*").eq("ID", str(response.user.id)).limit(1).execute().data
+
+            if rows:
+                profile = rows[0]
                 profile_username = profile.get('username') or profile.get('usernamen')
-                user = User(
-                    ID = profile['ID'],
-                    email = profile['email'],
-                    username = profile_username
-                )
-                return Account(token = response.session.access_token, user = user)
+            else:
+                # User exists in Auth but not in Users table — create the row now
+                username = response.user.user_metadata.get("full_name") or credentials.email.split("@")[0]
+                db.table('Users').insert({
+                    'ID': str(response.user.id),
+                    'email': response.user.email,
+                    'username': username
+                }).execute()
+                profile = {'ID': str(response.user.id), 'email': response.user.email, 'username': username}
+                profile_username = username
+
+            user = User(
+                ID=response.user.id,
+                email=response.user.email,
+                username=profile_username
+            )
+            return Account(token=response.session.access_token, user=user)
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Login failed: {str(e)}")
 
-    raise HTTPException(status_code=400, detail="Registration failed")
+    raise HTTPException(status_code=400, detail="Login failed")
