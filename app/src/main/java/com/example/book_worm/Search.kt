@@ -1,5 +1,6 @@
 package com.example.book_worm
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -21,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.rounded.ChevronLeft
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.FilterAlt
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.ExpandMore
@@ -48,6 +51,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -59,10 +63,20 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import com.example.book_worm.ui.theme.DarkGreen
 import com.example.book_worm.ui.theme.Green
 import com.example.book_worm.ui.theme.LightestGreen
 import com.example.book_worm.ui.theme.sulphur_point
+import com.example.book_worm.API.NetworkClient
+import com.example.book_worm.DTOs.ReviewCreate
+import com.example.book_worm.DTOs.Review
+import com.example.book_worm.DTOs.Comment
+import com.example.book_worm.DTOs.CommentCreate
+import com.example.book_worm.DTOs.ReactionCreate
 
 private val SearchHeaderGreen = Green
 private val SearchBodyGreen = Color(0xFFE3F0AF)
@@ -336,6 +350,30 @@ private fun SearchResultCard(onClick: () -> Unit) {
 
 @Composable
 private fun BookDetailContent() {
+    var reviews by remember { mutableStateOf<List<Review>>(emptyList()) }
+    var isLoadingReviews by remember { mutableStateOf(true) }
+    val coroutineScope = rememberCoroutineScope()
+
+    fun refreshReviews() {
+        coroutineScope.launch {
+            isLoadingReviews = true
+            try {
+                val response = NetworkClient.review.getReviewsForBook("to-kill-a-mockingbird")
+                if (response.isSuccessful && response.body() != null) {
+                    reviews = response.body()!!
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                isLoadingReviews = false
+            }
+        }
+    }
+    
+    LaunchedEffect(Unit) {
+        refreshReviews()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -349,13 +387,13 @@ private fun BookDetailContent() {
                     painter = painterResource(id = R.drawable.to_kill_a_mockingbird),
                     contentDescription = "To Kill a Mockingbird",
                     tint = Color.Unspecified,
-                modifier = Modifier
-                    .width(176.dp)
-                    .height(268.dp)
-            )
+                    modifier = Modifier
+                        .width(176.dp)
+                        .height(268.dp)
+                )
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start
             ) {
                     Text(
@@ -375,7 +413,7 @@ private fun BookDetailContent() {
                         color = Color(0x993C5104)
                     )
                 )
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(20.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
@@ -399,7 +437,7 @@ private fun BookDetailContent() {
                             .padding(start = 6.dp)
                     )
                 }
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "A gripping, heart-wrenching, and wholly remarkable coming-of-age tale in a South poisoned by virulent prejudice.",
                     style = MaterialTheme.typography.labelMedium.copy(
@@ -414,7 +452,7 @@ private fun BookDetailContent() {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        BookDetailButtons()
+        BookDetailButtons(onReviewPosted = { refreshReviews() })
 
         Spacer(modifier = Modifier.height(16.dp))
         Box(
@@ -434,14 +472,52 @@ private fun BookDetailContent() {
                 color = Color(0xFF3C5104)
             )
         )
+        
+        Spacer(modifier = Modifier.height(12.dp))
+        
+        if (isLoadingReviews) {
+            Text(
+                text = "Loading reviews...",
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontFamily = sulphur_point,
+                    fontSize = 14.sp,
+                    color = Color(0xFF3C5104)
+                )
+            )
+        } else if (reviews.isEmpty()) {
+            Text(
+                text = "No reviews yet",
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontFamily = sulphur_point,
+                    fontSize = 14.sp,
+                    color = Color(0xFF3C5104)
+                )
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(reviews) { review ->
+                    ReviewRow(review = review)
+                }
+            }
+        }
     }
 }
 
 @Composable
-private fun BookDetailButtons() {
+private fun BookDetailButtons(onReviewPosted: () -> Unit) {
     val options = listOf("Want to read", "Currently reading", "Read", "Favourites", "Owned", "Recs")
     var expanded by remember { mutableStateOf(false) }
     var showReviewDialog by remember { mutableStateOf(false) }
+    var reviewRating by remember { mutableStateOf(3) }
+    var commentText by remember { mutableStateOf("") }
+    var isSubmitting by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -547,11 +623,30 @@ private fun BookDetailButtons() {
             ) {
                 Box(
                     modifier = Modifier
+                        .offset(y = (-36).dp)
                         .width(306.dp)
                         .height(295.dp)
                         .clip(RoundedCornerShape(19.dp))
                         .background(Color(0xFFF4FFD5))
                 ) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(12.dp)
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFC5D49A))
+                            .clickable { showReviewDialog = false },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Close,
+                            contentDescription = "Close",
+                            tint = Color(0xFF3C5104),
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -577,6 +672,485 @@ private fun BookDetailButtons() {
                                 color = Color(0xFF3C5104)
                             )
                         )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .width(246.dp)
+                                .height(1.dp)
+                                .background(Color(0xFF91A78B))
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Mar 2026",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(end = 30.dp),
+                            textAlign = TextAlign.End,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontFamily = sulphur_point,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = Color(0xFF3C5104)
+                            )
+                        )
+
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 30.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = "Your rating:",
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontFamily = sulphur_point,
+                                    fontSize = 18.sp,
+                                    color = Color(0xFF3C5104)
+                                )
+                            )
+
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                for (index in 1..5) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.apple),
+                                        contentDescription = "Rating $index",
+                                        tint = if (index <= reviewRating) Color(0xFFA81622) else Color(0xFFD8C7AE),
+                                        modifier = Modifier
+                                            .size(24.dp)
+                                            .clickable { reviewRating = index }
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(86.dp)
+                                .padding(horizontal = 20.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(Color.White.copy(alpha = 0.55f))
+                                .padding(10.dp)
+                        ) {
+                            BasicTextField(
+                                value = commentText,
+                                onValueChange = { commentText = it },
+                                modifier = Modifier.fillMaxSize(),
+                                textStyle = MaterialTheme.typography.labelMedium.copy(
+                                    fontFamily = sulphur_point,
+                                    fontSize = 16.sp,
+                                    color = Color(0xFF3C5104)
+                                ),
+                                decorationBox = { innerTextField ->
+                                    if (commentText.isBlank()) {
+                                        Text(
+                                            text = "Write your review...",
+                                            style = MaterialTheme.typography.labelMedium.copy(
+                                                fontFamily = sulphur_point,
+                                                fontSize = 16.sp,
+                                                color = Color(0x993C5104)
+                                            )
+                                        )
+                                    }
+                                    innerTextField()
+                                }
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Box(
+                            modifier = Modifier
+                                .width(112.dp)
+                                .height(34.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(Color(0xFFC5D49A))
+                                .clickable(enabled = !isSubmitting) {
+                                    coroutineScope.launch {
+                                        isSubmitting = true
+                                        try {
+                                            val currentUserId = UserContext.user?.ID?.toString()
+                                                ?: "77266581-ff45-4847-8510-f6f609e69481"
+                                            val currentUserName = UserContext.user?.username ?: "Anonymous"
+                                            val payload = ReviewCreate(
+                                                user_id = currentUserId,
+                                                user_name = currentUserName,
+                                                book_id = "to-kill-a-mockingbird",
+                                                rating = reviewRating,
+                                                comment = commentText.trim()
+                                            )
+                                            val response = NetworkClient.review.createReview(payload)
+                                            if (response.isSuccessful) {
+                                                commentText = ""
+                                                reviewRating = 3
+                                                showReviewDialog = false
+                                                onReviewPosted()
+                                                Toast.makeText(context, "Review posted", Toast.LENGTH_SHORT).show()
+                                            } else {
+                                                Toast.makeText(context, "Failed to post review", Toast.LENGTH_SHORT).show()
+                                            }
+                                        } catch (_: Exception) {
+                                            Toast.makeText(context, "Network error posting review", Toast.LENGTH_SHORT).show()
+                                        } finally {
+                                            isSubmitting = false
+                                        }
+                                    }
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = if (isSubmitting) "..." else "POST",
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontFamily = sulphur_point,
+                                    fontSize = 18.sp,
+                                    color = Color(0xFF3C5104),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReviewRow(review: Review) {
+    var showReactionPicker by remember { mutableStateOf(false) }
+    var showCommentInput by remember { mutableStateOf(false) }
+    var commentInput by remember { mutableStateOf("") }
+    var reactions by remember(review.id) { mutableStateOf<List<com.example.book_worm.DTOs.Reaction>>(emptyList()) }
+    var comments by remember(review.id) { mutableStateOf<List<Comment>>(emptyList()) }
+    var isPostingComment by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    LaunchedEffect(review.id) {
+        try {
+            val reactionsResponse = NetworkClient.reaction.getReactionsForReview(review.id)
+            if (reactionsResponse.isSuccessful && reactionsResponse.body() != null) {
+                reactions = reactionsResponse.body()!!
+            }
+
+            val response = NetworkClient.comment.getCommentsForReview(review.id)
+            if (response.isSuccessful && response.body() != null) {
+                comments = response.body()!!
+            }
+        } catch (_: Exception) {
+        }
+    }
+    
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp)),
+        color = Color(0xFFBAD76B),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = review.user_name,
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontFamily = sulphur_point,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF3C5104)
+                    )
+                )
+                
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${review.rating}/5",
+                            modifier = Modifier.padding(top = 1.dp),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontFamily = sulphur_point,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF3C5104)
+                        )
+                    )
+                    repeat(review.rating) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.apple),
+                            contentDescription = "Rating",
+                            tint = Color.Unspecified,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
+            }
+            
+            Text(
+                text = review.comment,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontFamily = sulphur_point,
+                    fontSize = 16.sp,
+                    color = Color(0xFF3C5104)
+                ),
+                maxLines = 2
+            )
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .height(25.dp)
+                        .width(75.dp)
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(Color(0xFFF4FFD5))
+                        .clickable { showReactionPicker = !showReactionPicker },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "React",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = 16.sp,
+                            color = Color(0xFF3C5104)
+                        )
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .height(25.dp)
+                        .width(95.dp)
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(Color(0xFFF4FFD5))
+                        .clickable { showCommentInput = !showCommentInput },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Comment",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = 16.sp,
+                            color = Color(0xFF3C5104)
+                        )
+                    )
+                }
+            }
+            
+            if (showReactionPicker) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp)
+                ) {
+                    val emojis = listOf("❤️", "😂", "😮", "😢", "👍")
+                    emojis.forEach { emoji ->
+                        Box(
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFBAD76B))
+                                .clickable {
+                                    coroutineScope.launch {
+                                        try {
+                                            val currentUserId = UserContext.user?.ID?.toString()
+                                                ?: "77266581-ff45-4847-8510-f6f609e69481"
+                                            val reaction = ReactionCreate(
+                                                user_id = currentUserId,
+                                                review_id = review.id,
+                                                reaction_type = emoji
+                                            )
+                                            val response = NetworkClient.reaction.createReaction(reaction)
+                                            if (response.isSuccessful && response.body() != null) {
+                                                reactions = reactions + response.body()!!
+                                                showReactionPicker = false
+                                            } else {
+                                                Toast.makeText(context, "Failed to react", Toast.LENGTH_SHORT).show()
+                                            }
+                                        } catch (e: Exception) {
+                                            Toast.makeText(context, "Network error reacting", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(emoji, fontSize = 14.sp)
+                        }
+                    }
+                }
+            }
+
+            if (reactions.isNotEmpty()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    reactions
+                        .groupBy { it.reaction_type }
+                        .toList()
+                        .forEach { (emoji, items) ->
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(Color(0xFFF4FFD5))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "$emoji ${items.size}",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontFamily = sulphur_point,
+                                        fontSize = 12.sp,
+                                        color = Color(0xFF3C5104)
+                                    )
+                                )
+                            }
+                        }
+                }
+            }
+
+            if (showCommentInput) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(36.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color.White.copy(alpha = 0.6f))
+                            .padding(horizontal = 8.dp, vertical = 6.dp)
+                    ) {
+                        BasicTextField(
+                            value = commentInput,
+                            onValueChange = { commentInput = it },
+                            modifier = Modifier.fillMaxSize(),
+                            textStyle = MaterialTheme.typography.labelSmall.copy(
+                                fontFamily = sulphur_point,
+                                fontSize = 12.sp,
+                                color = Color(0xFF3C5104)
+                            ),
+                            singleLine = true,
+                            decorationBox = { innerTextField ->
+                                if (commentInput.isBlank()) {
+                                    Text(
+                                        text = "Add a comment...",
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontFamily = sulphur_point,
+                                            fontSize = 12.sp,
+                                            color = Color(0x993C5104)
+                                        )
+                                    )
+                                }
+                                innerTextField()
+                            }
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .height(34.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(DarkGreen)
+                            .padding(horizontal = 10.dp)
+                            .clickable(enabled = !isPostingComment && commentInput.isNotBlank()) {
+                                coroutineScope.launch {
+                                    isPostingComment = true
+                                    try {
+                                        val currentUserId = UserContext.user?.ID?.toString()
+                                            ?: "77266581-ff45-4847-8510-f6f609e69481"
+                                        val currentUserName = UserContext.user?.username ?: "Anonymous"
+                                        val payload = CommentCreate(
+                                            user_id = currentUserId,
+                                            user_name = currentUserName,
+                                            review_id = review.id,
+                                            comment_text = commentInput.trim()
+                                        )
+                                        val response = NetworkClient.comment.createComment(payload)
+                                        if (response.isSuccessful && response.body() != null) {
+                                            comments = comments + response.body()!!
+                                            commentInput = ""
+                                            showCommentInput = false
+                                        } else {
+                                            Toast.makeText(context, "Failed to post comment", Toast.LENGTH_SHORT).show()
+                                        }
+                                    } catch (_: Exception) {
+                                        Toast.makeText(context, "Network error posting comment", Toast.LENGTH_SHORT).show()
+                                    } finally {
+                                        isPostingComment = false
+                                    }
+                                }
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (isPostingComment) "..." else "POST",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontFamily = sulphur_point,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = LightestGreen
+                            )
+                        )
+                    }
+                }
+            }
+
+            if (comments.isNotEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    comments.forEach { comment ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(Color(0xFFF4FFD5))
+                                .padding(horizontal = 10.dp, vertical = 8.dp)
+                        ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                Text(
+                                    text = comment.user_name,
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontFamily = sulphur_point,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF3C5104)
+                                    )
+                                )
+                                Text(
+                                    text = comment.comment_text,
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontFamily = sulphur_point,
+                                        fontSize = 13.sp,
+                                        color = Color(0xFF3C5104)
+                                    )
+                                )
+                            }
+                        }
                     }
                 }
             }
