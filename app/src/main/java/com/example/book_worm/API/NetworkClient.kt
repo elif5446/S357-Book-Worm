@@ -8,17 +8,17 @@ import java.util.UUID
 object NetworkClient {
     // Use Cloud URL for production, local URL for development
     private val BASE_URL = "https://book-worm-884513973712.northamerica-northeast1.run.app/"
-    private val LOCAL_BASE_URL = "http://10.0.2.2:8000/" // For Android emulator to connect to localhost:8000
+    // private val LOCAL_BASE_URL = "http://10.0.2.2:8000/" // For Android emulator to connect to localhost:8000
     
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    private val localRetrofit = Retrofit.Builder()
+    /* private val localRetrofit = Retrofit.Builder()
         .baseUrl(LOCAL_BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
-        .build()
+        .build() */
 
     val authentication: Authentication by lazy {
         retrofit.create(Authentication::class.java)
@@ -29,15 +29,15 @@ object NetworkClient {
     }
 
     val review: ReviewAPI by lazy {
-        localRetrofit.create(ReviewAPI::class.java)
+        /* localRetrofit */retrofit.create(ReviewAPI::class.java)
     }
 
     val reaction: ReactionAPI by lazy {
-        localRetrofit.create(ReactionAPI::class.java)
+        /* localRetrofit */retrofit.create(ReactionAPI::class.java)
     }
 
     val comment: CommentAPI by lazy {
-        localRetrofit.create(CommentAPI::class.java)
+        /* localRetrofit */retrofit.create(CommentAPI::class.java)
     }
 }
 

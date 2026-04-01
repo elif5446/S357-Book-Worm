@@ -525,7 +525,7 @@ private fun BookDetailContent() {
                     .height(300.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(reviews) { review ->
+                items(reviews.reversed()) { review ->
                     ReviewRow(review = review)
                 }
             }
