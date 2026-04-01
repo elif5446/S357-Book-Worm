@@ -77,6 +77,7 @@ import com.example.book_worm.DTOs.Review
 import com.example.book_worm.DTOs.Comment
 import com.example.book_worm.DTOs.CommentCreate
 import com.example.book_worm.DTOs.ReactionCreate
+import java.util.Locale
 
 private val SearchHeaderGreen = Green
 private val SearchBodyGreen = Color(0xFFE3F0AF)
@@ -87,7 +88,10 @@ fun Search(onTabSelected: (BottomTab) -> Unit) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     var showDetails by remember { mutableStateOf(false) }
-    val hasMockingbirdResult = searchQuery.contains("mocking", ignoreCase = true)
+    val normalizedQuery = searchQuery.trim()
+    val hasMockingbirdResult =
+        normalizedQuery.length >= 2 &&
+            "to kill a mockingbird".contains(normalizedQuery, ignoreCase = true)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -257,6 +261,21 @@ fun Search(onTabSelected: (BottomTab) -> Unit) {
 
 @Composable
 private fun SearchResultCard(onClick: () -> Unit) {
+    var searchCardRatingText by remember { mutableStateOf("0.00") }
+
+    LaunchedEffect(Unit) {
+        try {
+            val response = NetworkClient.review.getReviewsForBook("to-kill-a-mockingbird")
+            if (response.isSuccessful && response.body() != null) {
+                val ratings = response.body()!!.map { it.rating }
+                val avg = if (ratings.isNotEmpty()) ratings.average() else 0.0
+                searchCardRatingText = String.format(Locale.US, "%.2f", avg)
+            }
+        } catch (_: Exception) {
+            // Keep fallback value if fetch fails.
+        }
+    }
+
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -326,7 +345,7 @@ private fun SearchResultCard(onClick: () -> Unit) {
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
-                            text = "3.95",
+                            text = searchCardRatingText,
                             style = MaterialTheme.typography.labelMedium.copy(
                                 fontFamily = sulphur_point,
                                 fontSize = 22.sp,
@@ -353,6 +372,12 @@ private fun BookDetailContent() {
     var reviews by remember { mutableStateOf<List<Review>>(emptyList()) }
     var isLoadingReviews by remember { mutableStateOf(true) }
     val coroutineScope = rememberCoroutineScope()
+    val overallRating = if (reviews.isNotEmpty()) {
+        reviews.map { it.rating }.average()
+    } else {
+        0.0
+    }
+    val overallRatingText = String.format(Locale.US, "%.2f", overallRating)
 
     fun refreshReviews() {
         coroutineScope.launch {
@@ -420,7 +445,7 @@ private fun BookDetailContent() {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Overall 3.95",
+                        text = "Overall $overallRatingText",
                         style = MaterialTheme.typography.labelMedium.copy(
                             fontFamily = sulphur_point,
                             fontSize = 22.sp,
