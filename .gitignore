@@ -15,6 +15,12 @@
 local.properties
 server/.env
 server/.env.local
-server/venv/
+
+# Virtual environments
+server/.venv/
+venv/
+
+# Python cache
 server/__pycache__/
+__pycache__/
 *.py[cod]

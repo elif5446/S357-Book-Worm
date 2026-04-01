@@ -6,9 +6,17 @@ import com.example.book_worm.DTOs.User
 import java.util.UUID
 
 object NetworkClient {
+    // Use Cloud URL for production, local URL for development
     private val BASE_URL = "https://book-worm-884513973712.northamerica-northeast1.run.app/"
+    private val LOCAL_BASE_URL = "http://10.0.2.2:8000/" // For Android emulator to connect to localhost:8000
+    
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    private val localRetrofit = Retrofit.Builder()
+        .baseUrl(LOCAL_BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
@@ -18,6 +26,18 @@ object NetworkClient {
 
     val bookClub: BookClubAPI by lazy {
         retrofit.create(BookClubAPI::class.java)
+    }
+
+    val review: ReviewAPI by lazy {
+        localRetrofit.create(ReviewAPI::class.java)
+    }
+
+    val reaction: ReactionAPI by lazy {
+        localRetrofit.create(ReactionAPI::class.java)
+    }
+
+    val comment: CommentAPI by lazy {
+        localRetrofit.create(CommentAPI::class.java)
     }
 }
 
