@@ -21,9 +21,9 @@ private val TabInactive = Color(0xFFBAD76B)
 private val TabActive = Color(0xFF8FBF0B)
 
 enum class BottomTab(@DrawableRes val iconRes: Int) {
-    Chat(R.drawable.chat_icon),
+    Chat(R.drawable.bookmark_icon),
     Shelves(R.drawable.shelves_icon),
-    BookClub(R.drawable.book_club_icon),
+    BookClub(R.drawable.chat_icon),
     Search(R.drawable.search_icon),
     Profile(R.drawable.profile_icon)
 }
