@@ -44,6 +44,11 @@ def register(credentials: Credentials):
                 'username': response.user.user_metadata.get("full_name")
             }).execute()
 
+            db.table('ClubMembers').insert({
+                'club_id': '00000000-0000-0000-0000-000000000001',
+                'user_id': response.user.id
+            }).execute()
+
             user = User(
                 ID = response.user.id,
                 email = response.user.email,

@@ -365,11 +365,11 @@ fun BookClubDetail(
                                 clubId,
                                 UpdateProgressRequest(currentPages = newPages, clubId = clubId)
                             )
-                            if (response.isSuccessful) {
-                                currentPages = response.body()?.currentPages ?: newPages
+                            /* currentPages = if (response.isSuccessful) {
+                                response.body()?.currentPages ?: newPages
                             } else {
-                                currentPages = newPages
-                            }
+                                newPages
+                            } */
                             // Refresh the combined total for the worm bar
                             refreshProgress(token)
                         } catch (_: Exception) {
