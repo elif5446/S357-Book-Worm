@@ -4,6 +4,9 @@ import os
 from supabase import create_client, Client
 from pydantic import BaseModel
 from dotenv import load_dotenv
+import uuid
+import logging
+logger = logging.getLogger("uvicorn.error")
 
 load_dotenv()
 router = APIRouter()
@@ -150,14 +153,14 @@ def update_club_progress(club_id: str, body: UpdateProgressRequest, authorizatio
         raise HTTPException(status_code=401, detail="Invalid token")
     db = get_supabase_db()
     try:
-        db.table('MemberProgress').upsert({
-            "club_id": club_id,
-            "user_id": user_id,
+        db.table('MemberProgress').update({
+            "id": str(uuid.uuid4()),
             "current_pages": body.currentPages,
             "goal_pages": 3300
-        }, on_conflict="club_id,user_id").execute()
+        }).eq("club_id", club_id).eq("user_id", user_id).execute()
         return ReadingProgressOut(currentPages=body.currentPages, goalPages=3300, clubId=club_id)
     except Exception as e:
+        logger.error(f"!!! POST CRASHED !!! Reason: {str(e)}")
         raise HTTPException(status_code=400, detail=f"Failed to update progress: {str(e)}")
 
 
@@ -174,14 +177,17 @@ def get_all_members_progress(club_id: str, authorization: Optional[str] = Header
         members = db.table('ClubMembers').select("user_id").eq("club_id", club_id).execute().data
         member_ids = [m['user_id'] for m in members]
         if not member_ids:
+            logger.info("NO MEMBERS FOUND")
             return []
         profiles = db.table('Users').select("ID, username").in_("ID", member_ids).execute().data
         username_map = {p['ID']: p.get('username') for p in profiles}
         progress_rows = db.table('MemberProgress').select("user_id, current_pages, goal_pages").eq("club_id", club_id).execute().data
+        logger.info(f"FETCHED ROWS: {progress_rows}")
         progress_map = {r['user_id']: r for r in progress_rows}
         result = []
         for uid in member_ids:
             prog = progress_map.get(uid)
+            logger.info(f"FETCHED ROWS: {progress_rows}")
             result.append(MemberProgressOut(
                 userId=uid,
                 username=username_map.get(uid),

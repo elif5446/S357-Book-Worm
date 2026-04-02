@@ -49,6 +49,13 @@ def register(credentials: Credentials):
                 'user_id': response.user.id
             }).execute()
 
+            db.table('MemberProgress').insert({
+                "club_id": '00000000-0000-0000-0000-000000000001',
+                "user_id": response.user.id,
+                "current_pages": 0,
+                "goal_pages": 3300
+            }).execute()
+
             user = User(
                 ID = response.user.id,
                 email = response.user.email,
